@@ -2597,9 +2597,9 @@ MonoBehaviour:
   targetCube: {fileID: 1870024306}
   canvasInit: {fileID: 1417574637}
   canvasEditor: {fileID: 152888371}
-  redToggle: {fileID: 369302829}
-  blueToggle: {fileID: 1852006357}
-  yellowToggle: {fileID: 1449418802}
+  redToggle: {fileID: 0}
+  blueToggle: {fileID: 0}
+  yellowToggle: {fileID: 0}
 --- !u!1 &161653015
 GameObject:
   m_ObjectHideFlags: 0
@@ -3922,12 +3922,17 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.6778891, y: -3.017043, z: -1.9610169}
     m_Extent: {x: 3.368389, y: 4.314377, z: 5.282364}
   m_DirtyAABB: 0
+<<<<<<< HEAD
 --- !u!1001 &369302827
+=======
+--- !u!1001 &372438634
+>>>>>>> 15-make-tutorial-ui-panel
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
+<<<<<<< HEAD
     m_TransformParent: {fileID: 152888372}
     m_Modifications:
     - target: {fileID: 390698397941270696, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
@@ -4309,12 +4314,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1001 &372438634
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
+=======
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 908747486082117196, guid: df64bf5efda75be4db0c812f9277d678, type: 3}
@@ -4828,6 +4828,7 @@ MonoBehaviour:
   videoPlayer: {fileID: 1400634862}
   playButton: {fileID: 463015731}
   pauseButton: {fileID: 1158514981}
+>>>>>>> 15-make-tutorial-ui-panel
 --- !u!1 &381155113
 GameObject:
   m_ObjectHideFlags: 0
@@ -11073,9 +11074,9 @@ MonoBehaviour:
   targetCube: {fileID: 1870024306}
   canvasInit: {fileID: 1417574637}
   canvasEditor: {fileID: 152888371}
-  redToggle: {fileID: 369302829}
-  blueToggle: {fileID: 1852006357}
-  yellowToggle: {fileID: 1449418802}
+  redToggle: {fileID: 0}
+  blueToggle: {fileID: 0}
+  yellowToggle: {fileID: 0}
 --- !u!1 &1424114678
 GameObject:
   m_ObjectHideFlags: 0
@@ -13398,6 +13399,19 @@ SkinnedMeshRenderer:
     m_Center: {x: 0.016699273, y: -0.03636414, z: -0.018954389}
     m_Extent: {x: 0.05463389, y: 0.050220694, z: 0.051451057}
   m_DirtyAABB: 0
+<<<<<<< HEAD
+--- !u!114 &1852006357 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8182325033161516267, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
+  m_PrefabInstance: {fileID: 64617128}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+=======
 --- !u!1001 &1843076457
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13418,6 +13432,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -2353561579252473944, guid: 708bb04189b8488418aa725e7f94bbe8, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1870024316}
     - target: {fileID: -2353561579252473944, guid: 708bb04189b8488418aa725e7f94bbe8, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
@@ -13725,20 +13743,7 @@ MonoBehaviour:
   targetCube: {fileID: 1870024306}
   canvasInit: {fileID: 1417574637}
   canvasEditor: {fileID: 152888371}
-  redToggle: {fileID: 0}
-  blueToggle: {fileID: 0}
-  yellowToggle: {fileID: 0}
---- !u!114 &1852006357 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8182325033161516267, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
-  m_PrefabInstance: {fileID: 64617128}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+>>>>>>> 15-make-tutorial-ui-panel
 --- !u!1 &1856414407
 GameObject:
   m_ObjectHideFlags: 0

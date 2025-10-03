@@ -1,4 +1,8 @@
-Library: C:\Users\majos\Skole\Semester_7\DynamicEmission-ExtendedReality\Temp\BurstOutput\tempburstlibs\arm64-v8a\lib_burst_generated
+<<<<<<< HEAD
+Library: C:\Studier\Semester_7\Kundestyrt\XR\Temp\BurstOutput\tempburstlibs\arm64-v8a\lib_burst_generated
+=======
+Library: C:\Users\sondr\NTNU2\unityProject\Temp\BurstOutput\tempburstlibs\arm64-v8a\lib_burst_generated
+>>>>>>> 15-make-tutorial-ui-panel
 --platform=Android
 --minimum-os-version=
 --backend=burst-llvm-19
@@ -9,10 +13,17 @@ Library: C:\Users\majos\Skole\Semester_7\DynamicEmission-ExtendedReality\Temp\Bu
 --float-precision=Standard
 --target-framework=NetFramework
 --generate-link-xml=Temp\burst.link.xml
---temp-folder=C:\Users\majos\Skole\Semester_7\DynamicEmission-ExtendedReality\Temp\Burst
+<<<<<<< HEAD
+--temp-folder=C:\Studier\Semester_7\Kundestyrt\XR\Temp\Burst
 --key-folder=C:/Program Files/Unity/Hub/Editor/6000.2.4f1/Editor/Data/PlaybackEngines/AndroidPlayer
---decode-folder=C:\Users\majos\Skole\Semester_7\DynamicEmission-ExtendedReality\Library\Burst
---output=C:\Users\majos\Skole\Semester_7\DynamicEmission-ExtendedReality\Temp\BurstOutput\tempburstlibs\arm64-v8a\lib_burst_generated
+--decode-folder=C:\Studier\Semester_7\Kundestyrt\XR\Library\Burst
+--output=C:\Studier\Semester_7\Kundestyrt\XR\Temp\BurstOutput\tempburstlibs\arm64-v8a\lib_burst_generated
+=======
+--temp-folder=C:\Users\sondr\NTNU2\unityProject\Temp\Burst
+--key-folder=C:/Program Files/Unity/Hub/Editor/6000.2.4f1/Editor/Data/PlaybackEngines/AndroidPlayer
+--decode-folder=C:\Users\sondr\NTNU2\unityProject\Library\Burst
+--output=C:\Users\sondr\NTNU2\unityProject\Temp\BurstOutput\tempburstlibs\arm64-v8a\lib_burst_generated
+>>>>>>> 15-make-tutorial-ui-panel
 --pdb-search-paths=Temp/ManagedSymbols/
 
 --method=UnityEngine.Rendering.GPUResidentDrawerBurst, Unity.RenderPipelines.GPUDriven.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null::ClassifyMaterials(Unity.Collections.NativeArray`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]&, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null|Unity.Collections.NativeParallelHashMap`2+ReadOnly[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[UnityEngine.Rendering.BatchMaterialID, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]&, Unity.Collections, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null|Unity.Collections.NativeList`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]&, Unity.Collections, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null|Unity.Collections.NativeList`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]&, Unity.Collections, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null|Unity.Collections.NativeList`1[[UnityEngine.Rendering.GPUDrivenPackedMaterialData, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]&, Unity.Collections, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null)--f259e9421b556600f769263137cdc7bc
@@ -110,10 +121,17 @@ Library: C:\Users\majos\Skole\Semester_7\DynamicEmission-ExtendedReality\Temp\Bu
 --target-framework=NetFramework
 --float-mode=Fast
 --generate-link-xml=Temp\burst.link.xml
---temp-folder=C:\Users\majos\Skole\Semester_7\DynamicEmission-ExtendedReality\Temp\Burst
+<<<<<<< HEAD
+--temp-folder=C:\Studier\Semester_7\Kundestyrt\XR\Temp\Burst
 --key-folder=C:/Program Files/Unity/Hub/Editor/6000.2.4f1/Editor/Data/PlaybackEngines/AndroidPlayer
---decode-folder=C:\Users\majos\Skole\Semester_7\DynamicEmission-ExtendedReality\Library\Burst
---output=C:\Users\majos\Skole\Semester_7\DynamicEmission-ExtendedReality\Temp\BurstOutput\tempburstlibs\arm64-v8a\lib_burst_generated
+--decode-folder=C:\Studier\Semester_7\Kundestyrt\XR\Library\Burst
+--output=C:\Studier\Semester_7\Kundestyrt\XR\Temp\BurstOutput\tempburstlibs\arm64-v8a\lib_burst_generated
+=======
+--temp-folder=C:\Users\sondr\NTNU2\unityProject\Temp\Burst
+--key-folder=C:/Program Files/Unity/Hub/Editor/6000.2.4f1/Editor/Data/PlaybackEngines/AndroidPlayer
+--decode-folder=C:\Users\sondr\NTNU2\unityProject\Library\Burst
+--output=C:\Users\sondr\NTNU2\unityProject\Temp\BurstOutput\tempburstlibs\arm64-v8a\lib_burst_generated
+>>>>>>> 15-make-tutorial-ui-panel
 --pdb-search-paths=Temp/ManagedSymbols/
 
 --method=Unity.Jobs.IJobForExtensions+ForJobStruct`1[[UnityEngine.Rendering.Universal.ZBinningJob, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null::Execute(UnityEngine.Rendering.Universal.ZBinningJob&, Unity.RenderPipelines.Universal.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null|System.IntPtr, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089|System.IntPtr, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089|Unity.Jobs.LowLevel.Unsafe.JobRanges&, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null|System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089)--77fc393cb521ac129b1392d4eb94d29a
