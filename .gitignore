@@ -44,6 +44,9 @@ XR_BurstDebugInformation_DoNotShip
 # Unity user-specific
 UserSettings/
 
+# Datasets
+Assets/StreamingAssets/*
+
 # Custom Unity/XR build artifacts
 .utmp/
 XR_BurstDebugInformation_DoNotShip/
