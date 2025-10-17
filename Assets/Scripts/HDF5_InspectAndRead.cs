@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using PureHDF;
+using System.Collections.Generic;
 
 public class HDF5_InspectAndRead : MonoBehaviour
 {
@@ -74,13 +75,13 @@ public class HDF5_InspectAndRead : MonoBehaviour
             {
                 var dataset = file.Dataset("/q");
                 float[] flat = dataset.Read<float[]>();
-                int stepSize = 4; // Increase/decrease for more/less aggressive downsampling
+                int stepSize = 2; // Increase/decrease for more/less aggressive downsampling
                 int time = 11, z = 41, y = 412, x = 412;
 
                 int stepZ = z / stepSize;
                 int stepY = y / stepSize;
                 int stepX = x / stepSize;
-                float[,,,] reshaped = new float[time, stepZ, stepY, stepX];
+                List<object[]> thresholdValues = new List<object[]>(); // Where the points we want to visualize are stored
 
                 for (int t = 0; t < time; t++)
                 {
@@ -95,27 +96,15 @@ public class HDF5_InspectAndRead : MonoBehaviour
                                 int srcX = xx * stepSize;
                                 long idxFlat = ((long)t * z + srcZ) * y * x + srcY * x + srcX;
                                 if (idxFlat < 0 || idxFlat >= flat.Length) continue;
-                                reshaped[t, zz, yy, xx] = flat[idxFlat];
+                                if (flat[idxFlat] <= 0 || flat[idxFlat] > 0.00975) continue;
+                                thresholdValues.Add(new object[] { t, zz, yy, xx, flat[idxFlat] });
                             }
                         }
                     }
                 }
 
-                Debug.Log($"Successfully read downsampled 'q' dataset with shape [{reshaped.GetLength(0)}, {reshaped.GetLength(1)}, {reshaped.GetLength(2)}, {reshaped.GetLength(3)}]");
+                Debug.Log($"Successfully read 'q' dataset.\nDownsampling factor: {stepSize}\nNumber of data points to visualize: {thresholdValues.Count}");
 
-                for (int zz = 0; zz < reshaped.GetLength(1); zz++)
-                {
-                    for (int yy = 0; yy < reshaped.GetLength(2); yy++)
-                    {
-                        for (int xx = 0; xx < reshaped.GetLength(3); xx++)
-                        {
-                            if (reshaped[0, zz, yy, xx] > 0)
-                            {
-                                Debug.Log($"q[0,{zz},{yy},{xx}] = {reshaped[0, zz, yy, xx]}");
-                            }
-                        }
-                    }
-                }
             }
             else
             {
