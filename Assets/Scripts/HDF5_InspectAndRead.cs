@@ -7,7 +7,7 @@ using PureHDF;
 public class HDF5_InspectAndRead : MonoBehaviour
 {
     [Tooltip("Name of the .nc file placed inside Assets/StreamingAssets/")]
-    public string fileName = "q_subset.nc";
+    public string fileName = "dp_3d_clean.001.nc";
 
     void Start()
     {
@@ -73,28 +73,47 @@ public class HDF5_InspectAndRead : MonoBehaviour
             if (qLink != null)
             {
                 var dataset = file.Dataset("/q");
-                var data = dataset.Read<float[]>();
-
-                int time = 1, z = 11, y = 11, x = 11;
                 float[] flat = dataset.Read<float[]>();
-                float[,,,] reshaped = new float[time, z, y, x];
+                int stepSize = 4; // Increase/decrease for more/less aggressive downsampling
+                int time = 11, z = 41, y = 412, x = 412;
 
-                int idx = 0;
+                int stepZ = z / stepSize;
+                int stepY = y / stepSize;
+                int stepX = x / stepSize;
+                float[,,,] reshaped = new float[time, stepZ, stepY, stepX];
+
                 for (int t = 0; t < time; t++)
-                    for (int zz = 0; zz < z; zz++)
-                        for (int yy = 0; yy < y; yy++)
-                            for (int xx = 0; xx < x; xx++)
-                                reshaped[t, zz, yy, xx] = flat[idx++];
-
-
-                Debug.Log($"Successfully read 'q' dataset with shape [{reshaped.GetLength(0)}, {reshaped.GetLength(1)}, {reshaped.GetLength(2)}, {reshaped.GetLength(3)}]");
-
-                // Iterating through reshaped array, using y = i and x = j
-                for (int i = 0; i < Math.Min(3, reshaped.GetLength(2)); i++)
                 {
-                    for (int j = 0; j < Math.Min(3, reshaped.GetLength(3)); j++)
+                    for (int zz = 0; zz < stepZ; zz++)
                     {
-                        Debug.Log($"q[0,0,{i},{j}] = {reshaped[0, 0, i, j]}");
+                        int srcZ = zz * stepSize;
+                        for (int yy = 0; yy < stepY; yy++)
+                        {
+                            int srcY = yy * stepSize;
+                            for (int xx = 0; xx < stepX; xx++)
+                            {
+                                int srcX = xx * stepSize;
+                                long idxFlat = ((long)t * z + srcZ) * y * x + srcY * x + srcX;
+                                if (idxFlat < 0 || idxFlat >= flat.Length) continue;
+                                reshaped[t, zz, yy, xx] = flat[idxFlat];
+                            }
+                        }
+                    }
+                }
+
+                Debug.Log($"Successfully read downsampled 'q' dataset with shape [{reshaped.GetLength(0)}, {reshaped.GetLength(1)}, {reshaped.GetLength(2)}, {reshaped.GetLength(3)}]");
+
+                for (int zz = 0; zz < reshaped.GetLength(1); zz++)
+                {
+                    for (int yy = 0; yy < reshaped.GetLength(2); yy++)
+                    {
+                        for (int xx = 0; xx < reshaped.GetLength(3); xx++)
+                        {
+                            if (reshaped[0, zz, yy, xx] > 0)
+                            {
+                                Debug.Log($"q[0,{zz},{yy},{xx}] = {reshaped[0, zz, yy, xx]}");
+                            }
+                        }
                     }
                 }
             }
