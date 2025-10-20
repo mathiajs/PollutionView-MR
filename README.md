@@ -10,7 +10,7 @@ This is a proof of concept project for using XR (Extended Reality) to visualize 
 4. Clone this repository to your local machine.
 5. Open Unity Hub and click on the "Add" button to add an existing project.
 6. You will be prompted to install the required Unity version (6000.2.4f1). Click "Install" and follow the instructions in Unity.
-7. When asked to install modules, select something i don't know yet.
+7. When asked to install modules, select Android Build Support.
 
 ## Setup of Meta Quest 3 Headset
 
