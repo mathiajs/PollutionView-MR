@@ -1,0 +1,34 @@
+#pragma kernel CSMain
+
+// Input: all timesteps {t, z, y, x, q}
+struct ParticleData {
+    int t;
+    int z;
+    int y;
+    int x;
+    float q;
+};
+
+StructuredBuffer<ParticleData> InBuffer;      // 5 entries per point: t, z, y, x, q
+RWStructuredBuffer<float4> OutBuffer;         // x, y, z, q (for VFX Graph)
+
+uint _PointCount;
+int _CurrentTimeStep;
+
+[numthreads(256, 1, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    uint i = id.x;
+    if (i >= _PointCount)
+        return;
+
+    ParticleData p = InBuffer[i];
+    if (p.t == _CurrentTimeStep)
+    {
+        OutBuffer[i] = float4((float)p.x, (float)p.y, (float)p.z, p.q);
+    }
+    else
+    {
+        OutBuffer[i] = float4(0, 0, 0, 0);
+    }
+}

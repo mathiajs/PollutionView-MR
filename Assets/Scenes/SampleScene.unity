@@ -2508,10 +2508,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 126820946}
-  - component: {fileID: 126820945}
   - component: {fileID: 126820950}
   - component: {fileID: 126820949}
   - component: {fileID: 126820948}
+  - component: {fileID: 126820951}
   m_Layer: 0
   m_Name: Reader
   m_TagString: Untagged
@@ -2519,19 +2519,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &126820945
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 126820944}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26a1195e3fd89384abcf39eac9ea9cbd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HDF5_InspectAndRead
-  fileName: dp_3d_clean.001.nc
 --- !u!4 &126820946
 Transform:
   m_ObjectHideFlags: 0
@@ -2541,7 +2528,7 @@ Transform:
   m_GameObject: {fileID: 126820944}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.17069, y: 0, z: -0.28539}
+  m_LocalPosition: {x: -0.17069, y: 0.675, z: 0.947}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2559,10 +2546,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77d460c046f76904a897ebc8d973d350, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DataBufferBinder
-  reader: {fileID: 126820945}
-  preprocessShader: {fileID: 7200000, guid: 60185b0cf6b823149a618bade4c0f45c, type: 3}
-  timestepCount: 11
-  secondsPerStep: 1
+  reader: {fileID: 126820951}
+  preprocessShader: {fileID: 7200000, guid: b92db6196fa76ae4286523d90b6e6eae, type: 3}
+  useTestData: 1
 --- !u!73398921 &126820949
 VFXRenderer:
   serializedVersion: 1
@@ -2617,7 +2603,7 @@ VisualEffect:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 126820944}
   m_Enabled: 1
-  m_Asset: {fileID: 0}
+  m_Asset: {fileID: 8926484042661614526, guid: 60185b0cf6b823149a618bade4c0f45c, type: 3}
   m_InitialEventName: OnPlay
   m_InitialEventNameOverriden: 0
   m_StartSeed: 0
@@ -2647,6 +2633,20 @@ VisualEffect:
       m_Array: []
     m_Bool:
       m_Array: []
+--- !u!114 &126820951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 126820944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26a1195e3fd89384abcf39eac9ea9cbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HDF5_InspectAndRead
+  fileName: dp_3d_clean.001.nc
+  useTestData: 1
 --- !u!1 &139626158
 GameObject:
   m_ObjectHideFlags: 0
@@ -11989,7 +11989,7 @@ VisualEffect:
   m_Enabled: 1
   m_Asset: {fileID: 8926484042661614526, guid: 60185b0cf6b823149a618bade4c0f45c, type: 3}
   m_InitialEventName: OnPlay
-  m_InitialEventNameOverriden: 0
+  m_InitialEventNameOverriden: 1
   m_StartSeed: 0
   m_ResetSeedOnPlay: 1
   m_AllowInstancing: 1
@@ -12029,7 +12029,7 @@ Transform:
   m_GameObject: {fileID: 1195727159}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.4, z: 1.291}
+  m_LocalPosition: {x: 0, y: 1.179, z: 1.291}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

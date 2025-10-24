@@ -10,6 +10,7 @@ public class HDF5_InspectAndRead : MonoBehaviour
     [Tooltip("Name of the .nc file placed inside Assets/StreamingAssets/")]
     public string fileName = "dp_3d_clean.001.nc";
     public GraphicsBuffer buffer;
+    public bool useTestData = true;
 
     [VFXType(VFXTypeAttribute.Usage.GraphicsBuffer)]
     struct ParticleData
@@ -20,7 +21,11 @@ public class HDF5_InspectAndRead : MonoBehaviour
     void Start()
     {
         UnityEngine.Debug.Log("Jada");
-        StartCoroutine(LoadAndInspect());
+
+        if(!useTestData)
+        {
+            StartCoroutine(LoadAndInspect());
+        }
     }
     System.Collections.IEnumerator LoadAndInspect()
     {
