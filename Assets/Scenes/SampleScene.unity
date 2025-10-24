@@ -2509,7 +2509,6 @@ GameObject:
   m_Component:
   - component: {fileID: 126820946}
   - component: {fileID: 126820945}
-  - component: {fileID: 126820947}
   - component: {fileID: 126820950}
   - component: {fileID: 126820949}
   - component: {fileID: 126820948}
@@ -2548,18 +2547,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &126820947
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 126820944}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ce542bdeeadce74480d47775fdbbe54, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PureHDF_TestLoad
 --- !u!114 &126820948
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2573,6 +2560,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DataBufferBinder
   reader: {fileID: 126820945}
+  preprocessShader: {fileID: 7200000, guid: 60185b0cf6b823149a618bade4c0f45c, type: 3}
+  timestepCount: 11
+  secondsPerStep: 1
 --- !u!73398921 &126820949
 VFXRenderer:
   serializedVersion: 1
