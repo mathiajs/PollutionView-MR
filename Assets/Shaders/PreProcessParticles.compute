@@ -10,10 +10,10 @@ struct ParticleData {
 };
 
 StructuredBuffer<ParticleData> InBuffer;
-RWStructuredBuffer<float4> OutBuffer;
+RWStructuredBuffer<ParticleData> OutBuffer;  // Output ParticleData directly
 
 uint PointCount;
-int CurrentTimeStep;
+int CurrentTimeStep;  // Not used, VFX Graph will filter
 
 [numthreads(256, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
@@ -22,13 +22,6 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     if (i >= PointCount)
         return;
 
-    ParticleData p = InBuffer[i];
-    if (p.t == CurrentTimeStep)
-    {
-        OutBuffer[i] = float4((float)p.x, (float)p.y, (float)p.z, p.q);
-    }
-    else
-    {
-        OutBuffer[i] = float4(0, 0, 0, 0);
-    }
+    // Just copy data through - VFX Graph will do the filtering
+    OutBuffer[i] = InBuffer[i];
 }

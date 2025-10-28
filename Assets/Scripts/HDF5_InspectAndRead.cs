@@ -13,7 +13,7 @@ public class HDF5_InspectAndRead : MonoBehaviour
     public bool useTestData = true;
 
     [VFXType(VFXTypeAttribute.Usage.GraphicsBuffer)]
-    struct ParticleData
+    public struct ParticleData
     {
         public int t, z, y, x;
         public float q;
