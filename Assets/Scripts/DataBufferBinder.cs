@@ -250,6 +250,41 @@ public class ParticleAnimationController : MonoBehaviour
     }
 
     /// <summary>
+    /// Uninitialize and hide the dataset. Call this from a UI button.
+    /// </summary>
+    public void UninitializeDataset()
+    {
+        if (!isInitialized)
+        {
+            Debug.LogWarning("Dataset not initialized!");
+            return;
+        }
+
+        Debug.Log("🛑 Uninitializing dataset...");
+
+        // Stop auto-play
+        autoPlay = false;
+
+        // Stop and clear VFX
+        vfx.Stop();
+        vfx.Reinit();
+
+        // Release buffers
+        rawBuffer?.Release();
+        visualBuffer?.Release();
+        rawBuffer = null;
+        visualBuffer = null;
+
+        // Reset state
+        isInitialized = false;
+        lastDispatchedTimestep = -1;
+        currentTimestep = 0;
+        timeSinceLastStep = 0f;
+
+        Debug.Log("💤 Dataset uninitialized and hidden.");
+    }
+
+    /// <summary>
     /// Toggle auto-play on/off. Call this from a Play/Pause button.
     /// </summary>
     public void ToggleAutoPlay()
