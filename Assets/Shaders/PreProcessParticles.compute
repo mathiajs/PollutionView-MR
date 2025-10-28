@@ -9,21 +9,21 @@ struct ParticleData {
     float q;
 };
 
-StructuredBuffer<ParticleData> InBuffer;      // 5 entries per point: t, z, y, x, q
-RWStructuredBuffer<float4> OutBuffer;         // x, y, z, q (for VFX Graph)
+StructuredBuffer<ParticleData> InBuffer;
+RWStructuredBuffer<float4> OutBuffer;
 
-uint _PointCount;
-int _CurrentTimeStep;
+uint PointCount;
+int CurrentTimeStep;
 
 [numthreads(256, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
     uint i = id.x;
-    if (i >= _PointCount)
+    if (i >= PointCount)
         return;
 
     ParticleData p = InBuffer[i];
-    if (p.t == _CurrentTimeStep)
+    if (p.t == CurrentTimeStep)
     {
         OutBuffer[i] = float4((float)p.x, (float)p.y, (float)p.z, p.q);
     }

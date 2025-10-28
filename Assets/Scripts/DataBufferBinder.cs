@@ -14,7 +14,7 @@ public class ParticleAnimationController : MonoBehaviour
 
     private int pointCount;
     private int kernel;
-    private bool hasDispatchedFirstStep = false;
+    private bool isInitialized = false;
 
     void Start()
     {
@@ -35,15 +35,29 @@ public class ParticleAnimationController : MonoBehaviour
         {
             CreateTestBuffer();
 
-            // Bind immediately to VFX
-            vfx.SetUInt("PointCount", (uint)pointCount);
-            vfx.SetInt("TimeStep", 0);
-            vfx.SetGraphicsBuffer("DataBuffer", visualBuffer);
+            yield return null; // wait one frame for VFX Graph
 
-            Debug.Log($"✅ Bound test cube buffer ({pointCount} points) to VFX Graph.");
-            vfx.Play();
+            // Set up compute shader to process test data (same as real data path)
+            if (preprocessShader == null)
+            {
+                Debug.LogError("Missing compute shader reference! Assign PreProcessParticles.compute in Inspector.");
+                enabled = false;
+                yield break;
+            }
 
-            hasDispatchedFirstStep = true;
+            visualBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, pointCount, sizeof(float) * 4);
+
+            kernel = preprocessShader.FindKernel("CSMain");
+            preprocessShader.SetBuffer(kernel, "InBuffer", rawBuffer);
+            preprocessShader.SetBuffer(kernel, "OutBuffer", visualBuffer);
+            preprocessShader.SetInt("PointCount", pointCount);
+
+            // Dispatch for timestep 0
+            DispatchForStep(0);
+
+            Debug.Log($"✅ Processed and bound test cube buffer ({pointCount} points) to VFX Graph.");
+
+            isInitialized = true;
             yield break;
         }
 
@@ -51,7 +65,7 @@ public class ParticleAnimationController : MonoBehaviour
         else
         {
 
-        
+
             if (reader == null || preprocessShader == null)
             {
                 Debug.LogError("Missing HDF5 reader or compute shader reference!");
@@ -74,31 +88,36 @@ public class ParticleAnimationController : MonoBehaviour
             preprocessShader.SetBuffer(kernel, "OutBuffer", visualBuffer);
             preprocessShader.SetInt("PointCount", pointCount);
 
-            // Dispatch only once
+            // Dispatch for timestep 0
             DispatchForStep(0);
-            hasDispatchedFirstStep = true;
+            isInitialized = true;
         }
     }
 
     void Update()
     {
-        if (hasDispatchedFirstStep)
-            return;
+        // Nothing to do after initialization
     }
 
     void DispatchForStep(int step)
     {
-        if (!useTestData && preprocessShader != null)
+        if (preprocessShader != null)
         {
-            preprocessShader.SetInt("_CurrentTimeStep", step);
+            preprocessShader.SetInt("CurrentTimeStep", step);
             int groups = Mathf.CeilToInt(pointCount / 256f);
             preprocessShader.Dispatch(kernel, groups, 1, 1);
+
+            Debug.Log($"Dispatched compute shader for timestep {step} with {groups} thread groups");
+        }
+        else
+        {
+            Debug.LogError("Compute shader is null! Cannot process particle data.");
         }
 
         LogFirstPoints(visualBuffer, Mathf.Min(20, pointCount));
 
         vfx.SetUInt("PointCount", (uint)pointCount);
-        vfx.SetInt("TimeStep", step);
+        vfx.SetInt("CurrentTimestep", step);
         vfx.SetGraphicsBuffer("DataBuffer", visualBuffer);
 
         if (!vfx.HasGraphicsBuffer("DataBuffer"))
@@ -111,39 +130,54 @@ public class ParticleAnimationController : MonoBehaviour
 
     void OnDestroy()
     {
+        rawBuffer?.Release();
         visualBuffer?.Release();
     }
 
-    // 🧱 Generate 10x10x3 cube (one point per meter)
+    // 🧱 Generate test cube with single timestep
     void CreateTestBuffer()
     {
-        int width = 10, height = 10, depth = 3;
+        int width = 50, height = 15, depth = 50;
         pointCount = width * height * depth;
 
-        Vector4[] points = new Vector4[pointCount];
+        HDF5ParticleData[] points = new HDF5ParticleData[pointCount];
         int index = 0;
 
         for (int z = 0; z < depth; z++)
         {
             for (int y = 0; y < height; y++)
             {
-                for (int x = 2; x < width; x++)
+                for (int x = 0; x < width; x++)
                 {
-                    // Position: 1 unit spacing
-                    // Color (w): simple gradient 0 → 1
-                    //float w = (float)index / (pointCount - 1);
-                    float w = 1;
-                    points[index] = new Vector4(x, y, z, w);
+                    points[index] = new HDF5ParticleData
+                    {
+                        t = 0,          // All particles at timestep 0
+                        z = z,
+                        y = y,
+                        x = x,
+                        q = (float)index / pointCount      // Gradient from 0 to 1
+                    };
                     index++;
                 }
             }
         }
 
-        visualBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, pointCount, sizeof(float) * 4);
-        visualBuffer.SetData(points);
+        // Create rawBuffer in ParticleData format
+        int structSize = sizeof(int) * 4 + sizeof(float); // t,z,y,x (ints) + q (float)
+        rawBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, pointCount, structSize);
+        rawBuffer.SetData(points);
 
-        Debug.Log($"🧱 Created test cube buffer with {pointCount} points.");
-        LogFirstPoints(visualBuffer, 20);
+        Debug.Log($"🧱 Created test cube buffer with {pointCount} points in ParticleData format.");
+    }
+
+    // Match the HDF5 ParticleData struct from HDF5_InspectAndRead
+    struct HDF5ParticleData
+    {
+        public int t;
+        public int z;
+        public int y;
+        public int x;
+        public float q;
     }
 
     void LogFirstPoints(GraphicsBuffer buffer, int count = 10)
