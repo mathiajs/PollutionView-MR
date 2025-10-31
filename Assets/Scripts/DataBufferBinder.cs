@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.VFX;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 [RequireComponent(typeof(VisualEffect))]
 public class ParticleAnimationController : MonoBehaviour
@@ -8,6 +11,14 @@ public class ParticleAnimationController : MonoBehaviour
     public ComputeShader preprocessShader;
     public bool useTestData = true; // toggle in Inspector
     public bool initializeOnStart = false; // if false, wait for manual initialization
+
+	// Placeholder VFX replacement
+	[Header("Placeholder Visualization (replaces dataset when assigned)")]
+	public VisualEffectAsset placeholderVfxAsset;
+	public Vector3 placeholderSpawnPosition = Vector3.zero;
+	public Transform placeholderParent;
+	public float placeholderSpawnDistance = 3.0f;
+	private VisualEffect placeholderVfxInstance;
 
     [Header("Timestep Control")]
     public int currentTimestep = 0;
@@ -245,8 +256,44 @@ public class ParticleAnimationController : MonoBehaviour
             return;
         }
 
-        Debug.Log("🚀 Initializing dataset...");
-        StartCoroutine(WaitForBufferAndInit());
+		// If a placeholder VFX asset is provided, spawn/play it instead of the old dataset flow
+		if (placeholderVfxAsset != null
+#if UNITY_EDITOR
+			|| (placeholderVfxAsset = AssetDatabase.LoadAssetAtPath<VisualEffectAsset>("Assets/PlaceholderVisualization/PlaceholderVisualisation.vfx")) != null
+#endif
+		)
+		{
+			Debug.Log("🚀 Initializing placeholder VFX instead of dataset...");
+			if (placeholderVfxInstance == null)
+			{
+				var go = new GameObject("PlaceholderVFX");
+				if (placeholderParent != null)
+					go.transform.SetParent(placeholderParent, false);
+				var spawn = placeholderSpawnPosition;
+				var cam = Camera.main;
+				if (placeholderParent == null && cam != null && spawn == Vector3.zero)
+					spawn = cam.transform.position + cam.transform.forward * placeholderSpawnDistance;
+				go.transform.position = spawn;
+				placeholderVfxInstance = go.AddComponent<VisualEffect>();
+				placeholderVfxInstance.visualEffectAsset = placeholderVfxAsset;
+			}
+			else
+			{
+				var spawn = placeholderSpawnPosition;
+				var cam = Camera.main;
+				if (placeholderParent == null && cam != null && spawn == Vector3.zero)
+					spawn = cam.transform.position + cam.transform.forward * placeholderSpawnDistance;
+				placeholderVfxInstance.transform.position = spawn;
+			}
+
+			placeholderVfxInstance.Reinit();
+			placeholderVfxInstance.Play();
+			isInitialized = true;
+			return;
+		}
+
+		Debug.Log("🚀 Initializing dataset...");
+		StartCoroutine(WaitForBufferAndInit());
     }
 
     /// <summary>
@@ -268,6 +315,14 @@ public class ParticleAnimationController : MonoBehaviour
         // Stop and clear VFX
         vfx.Stop();
         vfx.Reinit();
+
+		// Stop and remove placeholder VFX if it was used
+		if (placeholderVfxInstance != null)
+		{
+			placeholderVfxInstance.Stop();
+			Destroy(placeholderVfxInstance.gameObject);
+			placeholderVfxInstance = null;
+		}
 
         // Release buffers
         rawBuffer?.Release();
