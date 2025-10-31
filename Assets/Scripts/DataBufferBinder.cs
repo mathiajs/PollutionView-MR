@@ -20,6 +20,18 @@ public class ParticleAnimationController : MonoBehaviour
 	public float placeholderSpawnDistance = 3.0f;
 	private VisualEffect placeholderVfxInstance;
 
+	// Placeholder control bindings
+	private bool usingPlaceholder = false;
+	public string placeholderStepProperty = "CurrentTimestep";
+	public string placeholderMainColorProperty = "MainColor";
+
+	// Script-driven motion (no VFX Graph edits required)
+	public bool placeholderUseScriptMotion = true;
+	public Vector3 placeholderStepOffset = new Vector3(0f, 0f, 0.25f);
+	public float placeholderStepYawDegrees = 15f;
+	private Vector3 placeholderBasePosition;
+	private Quaternion placeholderBaseRotation;
+
     [Header("Timestep Control")]
     public int currentTimestep = 0;
     public bool autoPlay = false;
@@ -152,6 +164,28 @@ public class ParticleAnimationController : MonoBehaviour
         if (!isInitialized)
             return;
 
+        // === Placeholder VFX control path ===
+        if (usingPlaceholder)
+        {
+            if (autoPlay)
+            {
+                timeSinceLastStep += Time.deltaTime;
+                if (timeSinceLastStep >= timestepInterval)
+                {
+                    timeSinceLastStep = 0f;
+                    currentTimestep = (currentTimestep + 1) % (maxTimestep + 1);
+                }
+            }
+
+            if (currentTimestep != lastDispatchedTimestep)
+            {
+                ApplyPlaceholderStep();
+                lastDispatchedTimestep = currentTimestep;
+            }
+
+            return; // Skip dataset path entirely
+        }
+
         // Auto-play: cycle through timesteps automatically
         if (autoPlay)
         {
@@ -237,6 +271,22 @@ public class ParticleAnimationController : MonoBehaviour
         vfx.Play();
     }
 
+	void ApplyPlaceholderStep()
+	{
+		if (placeholderVfxInstance != null && !string.IsNullOrEmpty(placeholderStepProperty))
+		{
+			placeholderVfxInstance.SetInt(placeholderStepProperty, currentTimestep);
+		}
+
+		// Apply simple script-driven transform changes per timestep
+		if (placeholderUseScriptMotion && placeholderVfxInstance != null)
+		{
+			var pos = placeholderBasePosition + (placeholderStepOffset * currentTimestep);
+			var yaw = Quaternion.Euler(0f, placeholderStepYawDegrees * currentTimestep, 0f);
+			placeholderVfxInstance.transform.SetPositionAndRotation(pos, yaw * placeholderBaseRotation);
+		}
+	}
+
     void OnDestroy()
     {
         rawBuffer?.Release();
@@ -286,9 +336,18 @@ public class ParticleAnimationController : MonoBehaviour
 				placeholderVfxInstance.transform.position = spawn;
 			}
 
+			// Remember base transform for script-driven motion
+			placeholderBasePosition = placeholderVfxInstance.transform.position;
+			placeholderBaseRotation = placeholderVfxInstance.transform.rotation;
+
 			placeholderVfxInstance.Reinit();
 			placeholderVfxInstance.Play();
 			isInitialized = true;
+			usingPlaceholder = true;
+			currentTimestep = 0;
+			timeSinceLastStep = 0f;
+			lastDispatchedTimestep = -1;
+			ApplyPlaceholderStep();
 			return;
 		}
 
@@ -323,6 +382,8 @@ public class ParticleAnimationController : MonoBehaviour
 			Destroy(placeholderVfxInstance.gameObject);
 			placeholderVfxInstance = null;
 		}
+
+		usingPlaceholder = false;
 
         // Release buffers
         rawBuffer?.Release();
@@ -368,6 +429,14 @@ public class ParticleAnimationController : MonoBehaviour
             return;
         }
 
+		if (usingPlaceholder)
+		{
+			autoPlay = true;
+			timeSinceLastStep = 0f;
+			Debug.Log("▶️ Auto-play STARTED (placeholder)");
+			return;
+		}
+
         autoPlay = true;
         timeSinceLastStep = 0f;
         Debug.Log("▶️ Auto-play STARTED");
@@ -393,6 +462,14 @@ public class ParticleAnimationController : MonoBehaviour
             return;
         }
 
+		if (usingPlaceholder)
+		{
+			currentTimestep = (currentTimestep + 1) % (maxTimestep + 1);
+			ApplyPlaceholderStep();
+			Debug.Log($"⏭️ Advanced to timestep {currentTimestep} (placeholder)");
+			return;
+		}
+
         currentTimestep = (currentTimestep + 1) % (maxTimestep + 1);
         Debug.Log($"⏭️ Advanced to timestep {currentTimestep}");
     }
@@ -408,6 +485,14 @@ public class ParticleAnimationController : MonoBehaviour
             return;
         }
 
+		if (usingPlaceholder)
+		{
+			currentTimestep = (currentTimestep - 1 + maxTimestep + 1) % (maxTimestep + 1);
+			ApplyPlaceholderStep();
+			Debug.Log($"⏮️ Went back to timestep {currentTimestep} (placeholder)");
+			return;
+		}
+
         currentTimestep = (currentTimestep - 1 + maxTimestep + 1) % (maxTimestep + 1);
         Debug.Log($"⏮️ Went back to timestep {currentTimestep}");
     }
@@ -422,6 +507,15 @@ public class ParticleAnimationController : MonoBehaviour
             Debug.LogWarning("⚠️ Dataset not initialized!");
             return;
         }
+
+		if (usingPlaceholder)
+		{
+			currentTimestep = 0;
+			autoPlay = false;
+			ApplyPlaceholderStep();
+			Debug.Log("🔄 Reset to timestep 0 (placeholder)");
+			return;
+		}
 
         currentTimestep = 0;
         autoPlay = false;
@@ -463,5 +557,23 @@ public class ParticleAnimationController : MonoBehaviour
 
         Debug.Log($"🧱 Created test cube buffer with {pointCount} points in ParticleData format.");
     }
+
+    // === Placeholder color controls (for EditorCanvas buttons) ===
+    public void SetMainColor(float r, float g, float b, float a = 1f)
+    {
+        if (placeholderVfxInstance != null && !string.IsNullOrEmpty(placeholderMainColorProperty))
+        {
+            placeholderVfxInstance.SetVector4(placeholderMainColorProperty, new Vector4(r, g, b, a));
+        }
+    }
+
+    public void SetMainColorRed()    { SetMainColor(1f, 0f, 0f, 1f); }
+    public void SetMainColorBlue()   { SetMainColor(0f, 0f, 1f, 1f); }
+    public void SetMainColorYellow() { SetMainColor(1f, 0.92f, 0.016f, 1f); }
+
+    // Toggle helpers (use with Toggle.onValueChanged)
+    public void SetMainColorRedToggle(bool isOn)    { if (isOn) SetMainColorRed(); }
+    public void SetMainColorBlueToggle(bool isOn)   { if (isOn) SetMainColorBlue(); }
+    public void SetMainColorYellowToggle(bool isOn) { if (isOn) SetMainColorYellow(); }
 
 }
