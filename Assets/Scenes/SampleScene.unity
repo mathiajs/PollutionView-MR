@@ -2581,15 +2581,18 @@ MonoBehaviour:
   placeholderVfxAsset: {fileID: 8926484042661614526, guid: 8cb0f02b1c13f344cb0faac7cfbd171c, type: 3}
   placeholderSpawnPosition: {x: 0, y: 0, z: 0}
   placeholderParent: {fileID: 0}
-  placeholderSpawnDistance: 2.5
+  placeholderSpawnDistance: 1.7
   placeholderStepProperty: CurrentTimestep
   placeholderMainColorProperty: MainColor
   placeholderUseScriptMotion: 1
-  placeholderStepOffset: {x: 0, y: 0, z: 0.25}
-  placeholderStepYawDegrees: 15
+  placeholderStepOffset: {x: 0.015, y: 0.015, z: 0.015}
+  placeholderStepYawDegrees: 5
+  placeholderSmoothMotion: 1
+  placeholderMoveSmoothTime: 0.65
+  placeholderRotateLerpSpeed: 3
   currentTimestep: 0
   autoPlay: 0
-  timestepInterval: 1
+  timestepInterval: 1.2
   maxTimestep: 10
 --- !u!73398921 &126820949
 VFXRenderer:

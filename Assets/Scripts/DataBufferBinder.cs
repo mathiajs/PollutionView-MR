@@ -32,6 +32,14 @@ public class ParticleAnimationController : MonoBehaviour
 	private Vector3 placeholderBasePosition;
 	private Quaternion placeholderBaseRotation;
 
+	// Smooth motion between timesteps
+	public bool placeholderSmoothMotion = true;
+	public float placeholderMoveSmoothTime = 0.35f;
+	public float placeholderRotateLerpSpeed = 8f;
+	private Vector3 placeholderMoveVelocity;
+	private Vector3 placeholderTargetPosition;
+	private Quaternion placeholderTargetRotation;
+
     [Header("Timestep Control")]
     public int currentTimestep = 0;
     public bool autoPlay = false;
@@ -177,11 +185,29 @@ public class ParticleAnimationController : MonoBehaviour
                 }
             }
 
-            if (currentTimestep != lastDispatchedTimestep)
+			if (currentTimestep != lastDispatchedTimestep)
             {
                 ApplyPlaceholderStep();
                 lastDispatchedTimestep = currentTimestep;
             }
+
+			// Smoothly ease transform toward targets each frame
+			if (placeholderSmoothMotion && placeholderVfxInstance != null)
+			{
+				placeholderVfxInstance.transform.position =
+					Vector3.SmoothDamp(
+						placeholderVfxInstance.transform.position,
+						placeholderTargetPosition,
+						ref placeholderMoveVelocity,
+						placeholderMoveSmoothTime);
+
+				float rT = 1f - Mathf.Exp(-placeholderRotateLerpSpeed * Time.deltaTime);
+				placeholderVfxInstance.transform.rotation =
+					Quaternion.Slerp(
+						placeholderVfxInstance.transform.rotation,
+						placeholderTargetRotation,
+						rT);
+			}
 
             return; // Skip dataset path entirely
         }
@@ -278,12 +304,19 @@ public class ParticleAnimationController : MonoBehaviour
 			placeholderVfxInstance.SetInt(placeholderStepProperty, currentTimestep);
 		}
 
-		// Apply simple script-driven transform changes per timestep
+		// Compute new targets for this timestep
 		if (placeholderUseScriptMotion && placeholderVfxInstance != null)
 		{
-			var pos = placeholderBasePosition + (placeholderStepOffset * currentTimestep);
-			var yaw = Quaternion.Euler(0f, placeholderStepYawDegrees * currentTimestep, 0f);
-			placeholderVfxInstance.transform.SetPositionAndRotation(pos, yaw * placeholderBaseRotation);
+			var stepPos = placeholderBasePosition + (placeholderStepOffset * currentTimestep);
+			var stepYaw = Quaternion.Euler(0f, placeholderStepYawDegrees * currentTimestep, 0f);
+			var stepRot = stepYaw * placeholderBaseRotation;
+
+			placeholderTargetPosition = stepPos;
+			placeholderTargetRotation = stepRot;
+
+			// If smoothing is disabled, snap immediately
+			if (!placeholderSmoothMotion)
+				placeholderVfxInstance.transform.SetPositionAndRotation(stepPos, stepRot);
 		}
 	}
 
@@ -339,6 +372,9 @@ public class ParticleAnimationController : MonoBehaviour
 			// Remember base transform for script-driven motion
 			placeholderBasePosition = placeholderVfxInstance.transform.position;
 			placeholderBaseRotation = placeholderVfxInstance.transform.rotation;
+			placeholderTargetPosition = placeholderBasePosition;
+			placeholderTargetRotation = placeholderBaseRotation;
+			placeholderMoveVelocity = Vector3.zero;
 
 			placeholderVfxInstance.Reinit();
 			placeholderVfxInstance.Play();
@@ -384,6 +420,7 @@ public class ParticleAnimationController : MonoBehaviour
 		}
 
 		usingPlaceholder = false;
+		placeholderMoveVelocity = Vector3.zero;
 
         // Release buffers
         rawBuffer?.Release();

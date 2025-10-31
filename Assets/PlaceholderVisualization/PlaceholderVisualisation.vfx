@@ -224,7 +224,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 398
     y: -492
-    width: 756
+    width: 757
     height: 2216
 --- !u!114 &114350483966674976
 MonoBehaviour:
@@ -1030,7 +1030,7 @@ MonoBehaviour:
   compositionPosition: 0
   compositionAxes: 0
   compositionDirection: 0
-  positionMode: 0
+  positionMode: 1
   spawnMode: 0
   shape: 0
   heightMode: 1
@@ -3289,7 +3289,8 @@ MonoBehaviour:
     - outputSlot: {fileID: 8926484042661614899}
       inputSlot: {fileID: 8926484042661614905}
     position: {x: 436.5, y: 978.5}
-    expandedSlots: []
+    expandedSlots:
+    - {fileID: 8926484042661614899}
     expanded: 1
     supecollapsed: 0
 --- !u!114 &8926484042661614899
