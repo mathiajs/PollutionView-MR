@@ -3,16 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CubeManager : MonoBehaviour
+public class CanvasHelper : MonoBehaviour
 {
-    public GameObject targetCube;
     public GameObject canvasInit;    // Canvas med Initialize-knappen
     public GameObject canvasEditor;  // Canvas med editor-knapper
     private bool firstTime = true;
 
     // Fargehåndtering
     private HashSet<Color> activeColors = new HashSet<Color>();
-    private Renderer cubeRenderer;
 
     private Color redColor = Color.red;
     private Color blueColor = Color.blue;
@@ -25,7 +23,6 @@ public class CubeManager : MonoBehaviour
 
     void Start()
     {
-        cubeRenderer = targetCube.GetComponent<Renderer>();
         canvasInit.SetActive(true);
         canvasEditor.SetActive(false);
 
@@ -41,12 +38,8 @@ public class CubeManager : MonoBehaviour
     }
 
     // Initialize-knapp
-    public void InitializeCube()
+    public void Initialize()
     {
-        if (targetCube == null) return;
-
-        targetCube.SetActive(true);
-
         if (firstTime)
         {
             firstTime = false;
@@ -69,7 +62,6 @@ public class CubeManager : MonoBehaviour
         canvasInit.SetActive(false);
         canvasEditor.SetActive(true);
         redToggle.isOn = true;
-
     }
 
     private void OnToggleChanged(Color color, bool isOn)
@@ -86,12 +78,7 @@ public class CubeManager : MonoBehaviour
     {
         if (activeColors.Count == 0)
         {
-            RemoveCube();
-        }
-        else
-        {
-            cubeRenderer.material.color = MixColorsHSV();
-            targetCube.SetActive(true);
+            ResetColors();
         }
     }
 
@@ -114,12 +101,24 @@ public class CubeManager : MonoBehaviour
         return Color.HSVToRGB(h, s, v);
     }
 
-
-    // Fjern kuben
-    private void RemoveCube()
+    // Få den blandede fargen
+    public Color GetMixedColor()
     {
-        targetCube.SetActive(false);
+        if (activeColors.Count == 0)
+            return Color.white;
 
+        return MixColorsHSV();
+    }
+
+    // Sjekk om det er aktive farger
+    public bool HasActiveColors()
+    {
+        return activeColors.Count > 0;
+    }
+
+    // Tilbakestill farger
+    private void ResetColors()
+    {
         // Tilbakestill toggles
         redToggle.isOn = false;
         blueToggle.isOn = false;
@@ -127,9 +126,8 @@ public class CubeManager : MonoBehaviour
         activeColors.Clear();
     }
 
-    public void backToSpawnCube()
+    public void BackToInit()
     {
-        targetCube.SetActive(false);
         canvasEditor.SetActive(false);
         canvasInit.SetActive(true);
 
