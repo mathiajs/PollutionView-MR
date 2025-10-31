@@ -4,10 +4,13 @@ using UnityEngine.VFX;
 [RequireComponent(typeof(VisualEffect))]
 public class ParticleAnimationController : MonoBehaviour
 {
-    public HDF5_InspectAndRead reader;
+    [Header("Data Source (choose one)")]
+    public HDF5_InspectAndRead reader; // Legacy: slow runtime processing
+    public FastDatasetLoader fastLoader; // Recommended: instant loading from preprocessed file
+
     public ComputeShader preprocessShader;
     public bool useTestData = true; // toggle in Inspector
-    public bool initializeOnStart = false; // if false, wait for manual initialization
+    public bool initializeOnStart = false; // if false, wait for manual initialization (RECOMMENDED: keep false to avoid startup freeze)
 
     [Header("Timestep Control")]
     public int currentTimestep = 0;
@@ -24,6 +27,9 @@ public class ParticleAnimationController : MonoBehaviour
     private bool isInitialized = false;
     private int lastDispatchedTimestep = -1;
     private float timeSinceLastStep = 0f;
+
+    // Public accessor
+    public bool IsInitialized => isInitialized;
 
     void Start()
     {
@@ -85,21 +91,61 @@ public class ParticleAnimationController : MonoBehaviour
         // --- Normal data path ---
         else
         {
+            // Try fast loader first, fallback to legacy reader
+            GraphicsBuffer sourceBuffer = null;
 
-
-            if (reader == null || preprocessShader == null)
+            if (fastLoader != null)
             {
-                Debug.LogError("Missing HDF5 reader or compute shader reference!");
+                Debug.Log("⚡ Using FastDatasetLoader (preprocessed data)...");
+
+                // Start loading if not already started
+                if (!fastLoader.IsLoaded && fastLoader.buffer == null)
+                {
+                    fastLoader.StartLoading();
+                }
+
+                // Wait for loader to finish (with timeout)
+                float startTime = Time.realtimeSinceStartup;
+                while (fastLoader.buffer == null)
+                {
+                    if (Time.realtimeSinceStartup - startTime > 30f)
+                    {
+                        Debug.LogError("❌ FastDatasetLoader timed out after 30 seconds!");
+                        enabled = false;
+                        yield break;
+                    }
+                    yield return null;
+                }
+
+                sourceBuffer = fastLoader.buffer;
+                Debug.Log("✅ Fast loader ready!");
+            }
+            else if (reader != null)
+            {
+                Debug.Log("⚠️ Using HDF5_InspectAndRead (slow legacy mode)...");
+                while (reader.buffer == null)
+                    yield return null;
+
+                sourceBuffer = reader.buffer;
+                Debug.Log("✅ Legacy reader ready!");
+            }
+            else
+            {
+                Debug.LogError("❌ No data source assigned! Assign either FastDatasetLoader or HDF5_InspectAndRead.");
                 enabled = false;
                 yield break;
             }
 
-            while (reader.buffer == null)
-                yield return null;
+            if (preprocessShader == null)
+            {
+                Debug.LogError("Missing compute shader reference!");
+                enabled = false;
+                yield break;
+            }
 
             yield return null; // wait one frame for VFX Graph
 
-            rawBuffer = reader.buffer;
+            rawBuffer = sourceBuffer;
             pointCount = rawBuffer.count;
 
             // Debug: Analyze timestep distribution in real data
@@ -269,11 +315,13 @@ public class ParticleAnimationController : MonoBehaviour
         vfx.Stop();
         vfx.Reinit();
 
-        // Release buffers
-        rawBuffer?.Release();
+        // DON'T release rawBuffer - we need to keep the source data!
+        // Only release the visual buffer
         visualBuffer?.Release();
-        rawBuffer = null;
         visualBuffer = null;
+
+        // Note: rawBuffer is kept because it's managed by FastDatasetLoader/HDF5Reader
+        // We just clear our reference to the visual buffer
 
         // Reset state
         isInitialized = false;
@@ -281,7 +329,7 @@ public class ParticleAnimationController : MonoBehaviour
         currentTimestep = 0;
         timeSinceLastStep = 0f;
 
-        Debug.Log("💤 Dataset uninitialized and hidden.");
+        Debug.Log("💤 Dataset uninitialized and hidden. Ready to re-initialize.");
     }
 
     /// <summary>
