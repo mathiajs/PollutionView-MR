@@ -25,7 +25,7 @@ public class PrebakedDatasetAsset : ScriptableObject
 
     /// <summary>
     /// Deserialize the byte array back to ParticleData array.
-    /// This is FAST because it's just a memory copy.
+    /// This is FAST because it's just reading binary data.
     /// </summary>
     public ParticleData[] GetParticles()
     {
@@ -39,7 +39,18 @@ public class PrebakedDatasetAsset : ScriptableObject
         int count = serializedData.Length / structSize;
         ParticleData[] particles = new ParticleData[count];
 
-        System.Buffer.BlockCopy(serializedData, 0, particles, 0, serializedData.Length);
+        using (System.IO.MemoryStream stream = new System.IO.MemoryStream(serializedData))
+        using (System.IO.BinaryReader reader = new System.IO.BinaryReader(stream))
+        {
+            for (int i = 0; i < count; i++)
+            {
+                particles[i].t = reader.ReadInt32();
+                particles[i].z = reader.ReadInt32();
+                particles[i].y = reader.ReadInt32();
+                particles[i].x = reader.ReadInt32();
+                particles[i].q = reader.ReadSingle();
+            }
+        }
 
         return particles;
     }

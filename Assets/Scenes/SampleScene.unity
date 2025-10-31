@@ -2624,7 +2624,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DataBufferBinder
   reader: {fileID: 0}
-  fastLoader: {fileID: 126820952}
+  fastLoader: {fileID: 0}
+  prebakedLoader: {fileID: 582055381}
   preprocessShader: {fileID: 7200000, guid: b92db6196fa76ae4286523d90b6e6eae, type: 3}
   useTestData: 0
   initializeOnStart: 0
@@ -6196,12 +6197,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d31383f2e66d38f478a44d38acc72c89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DatasetLoadingIndicator
-  loader: {fileID: 126820952}
+  loader: {fileID: 0}
+  prebakedLoader: {fileID: 582055381}
   loadingPanel: {fileID: 81749602}
   legacyText: {fileID: 0}
   tmpText: {fileID: 1024174311}
   hideWhenLoaded: 1
-  hideDelay: 5
+  hideDelay: 0.5
   showPercentage: 1
 --- !u!114 &517987969
 MonoBehaviour:
@@ -6548,6 +6550,52 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 981070204}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &582055380
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 582055382}
+  - component: {fileID: 582055381}
+  m_Layer: 0
+  m_Name: Baker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &582055381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 582055380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c02694ed52380264796c007ee09a5d4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PrebakedDatasetLoader
+  datasetAsset: {fileID: 11400000, guid: eede853a18ba43b488e5422d4e13f9fb, type: 2}
+  loadOnStart: 1
+--- !u!4 &582055382
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 582055380}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 193.25305, y: 0, z: 7.697}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &589874819
 GameObject:
@@ -20546,3 +20594,4 @@ SceneRoots:
   - {fileID: 126820946}
   - {fileID: 904881745}
   - {fileID: 517987972}
+  - {fileID: 582055382}

@@ -6,7 +6,8 @@ public class ParticleAnimationController : MonoBehaviour
 {
     [Header("Data Source (choose one)")]
     public HDF5_InspectAndRead reader; // Legacy: slow runtime processing
-    public FastDatasetLoader fastLoader; // Recommended: instant loading from preprocessed file
+    public FastDatasetLoader fastLoader; // Fast: preprocessed binary file
+    public PrebakedDatasetLoader prebakedLoader; // FASTEST: Unity asset (instant load!)
 
     public ComputeShader preprocessShader;
     public bool useTestData = true; // toggle in Inspector
@@ -91,10 +92,30 @@ public class ParticleAnimationController : MonoBehaviour
         // --- Normal data path ---
         else
         {
-            // Try fast loader first, fallback to legacy reader
+            // Try loaders in order of speed: prebaked > fast > legacy
             GraphicsBuffer sourceBuffer = null;
 
-            if (fastLoader != null)
+            if (prebakedLoader != null)
+            {
+                Debug.Log("🚀 Using PrebakedDatasetLoader (INSTANT Unity asset)...");
+
+                // Wait for prebaked loader to finish (should be instant)
+                float startTime = Time.realtimeSinceStartup;
+                while (prebakedLoader.buffer == null && !prebakedLoader.IsLoaded)
+                {
+                    if (Time.realtimeSinceStartup - startTime > 5f)
+                    {
+                        Debug.LogError("❌ PrebakedDatasetLoader timed out after 5 seconds!");
+                        enabled = false;
+                        yield break;
+                    }
+                    yield return null;
+                }
+
+                sourceBuffer = prebakedLoader.buffer;
+                Debug.Log($"✅ Prebaked loader ready! Load time: {Time.realtimeSinceStartup - startTime:F3}s");
+            }
+            else if (fastLoader != null)
             {
                 Debug.Log("⚡ Using FastDatasetLoader (preprocessed data)...");
 
@@ -131,7 +152,7 @@ public class ParticleAnimationController : MonoBehaviour
             }
             else
             {
-                Debug.LogError("❌ No data source assigned! Assign either FastDatasetLoader or HDF5_InspectAndRead.");
+                Debug.LogError("❌ No data source assigned! Assign PrebakedDatasetLoader, FastDatasetLoader, or HDF5_InspectAndRead.");
                 enabled = false;
                 yield break;
             }

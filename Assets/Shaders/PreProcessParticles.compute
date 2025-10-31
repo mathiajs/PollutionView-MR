@@ -10,10 +10,10 @@ struct ParticleData {
 };
 
 StructuredBuffer<ParticleData> InBuffer;
-RWStructuredBuffer<ParticleData> OutBuffer;  // Output ParticleData directly
+RWStructuredBuffer<ParticleData> OutBuffer;
 
 uint PointCount;
-int CurrentTimeStep;  // Not used, VFX Graph will filter
+int CurrentTimeStep;
 
 [numthreads(256, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)

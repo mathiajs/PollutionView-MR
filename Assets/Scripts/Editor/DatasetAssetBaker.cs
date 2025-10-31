@@ -181,8 +181,18 @@ public class DatasetAssetBaker : EditorWindow
             int structSize = sizeof(int) * 4 + sizeof(float);
             asset.serializedData = new byte[particles.Count * structSize];
 
-            var particleArray = particles.ToArray();
-            System.Buffer.BlockCopy(particleArray, 0, asset.serializedData, 0, asset.serializedData.Length);
+            using (System.IO.MemoryStream stream = new System.IO.MemoryStream(asset.serializedData))
+            using (System.IO.BinaryWriter writer = new System.IO.BinaryWriter(stream))
+            {
+                foreach (var p in particles)
+                {
+                    writer.Write(p.t);
+                    writer.Write(p.z);
+                    writer.Write(p.y);
+                    writer.Write(p.x);
+                    writer.Write(p.q);
+                }
+            }
 
             // Save as asset
             string assetPath = $"Assets/{assetName}.asset";

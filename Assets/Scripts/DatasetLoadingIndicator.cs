@@ -9,7 +9,8 @@ using UnityEngine.UI;
 public class DatasetLoadingIndicator : MonoBehaviour
 {
     [Header("References")]
-    public FastDatasetLoader loader;
+    public FastDatasetLoader loader; // Legacy support
+    public PrebakedDatasetLoader prebakedLoader; // Preferred
     public GameObject loadingPanel; // The panel to show/hide
 
     [Header("Text (use one)")]
@@ -28,8 +29,10 @@ public class DatasetLoadingIndicator : MonoBehaviour
     {
         Debug.Log("🔍 DatasetLoadingIndicator started");
 
-        // Show loading panel initially if loader hasn't loaded yet
-        if (loadingPanel != null && loader != null && !loader.IsLoaded)
+        bool isLoaded = GetIsLoaded();
+
+        // Show loading panel initially if data hasn't loaded yet
+        if (loadingPanel != null && !isLoaded)
         {
             loadingPanel.SetActive(true);
             Debug.Log("✅ Loading panel shown on start");
@@ -38,19 +41,38 @@ public class DatasetLoadingIndicator : MonoBehaviour
         {
             if (loadingPanel == null)
                 Debug.LogWarning("⚠️ LoadingPanel reference is missing!");
-            if (loader == null)
-                Debug.LogWarning("⚠️ FastDatasetLoader reference is missing!");
-            if (loader != null && loader.IsLoaded)
+            if (loader == null && prebakedLoader == null)
+                Debug.LogWarning("⚠️ No loader reference assigned!");
+            if (isLoaded)
                 Debug.Log("ℹ️ Dataset already loaded, hiding panel");
         }
     }
 
+    bool GetIsLoaded()
+    {
+        if (prebakedLoader != null)
+            return prebakedLoader.IsLoaded;
+        if (loader != null)
+            return loader.IsLoaded;
+        return false;
+    }
+
+    bool GetIsLoading()
+    {
+        // Prebaked loader doesn't have IsLoading, it's instant
+        if (prebakedLoader != null)
+            return !prebakedLoader.IsLoaded;
+        if (loader != null)
+            return loader.IsLoading || (!loader.IsLoaded && loader.buffer == null);
+        return false;
+    }
+
     void Update()
     {
-        if (loader == null) return;
+        if (loader == null && prebakedLoader == null) return;
 
-        // Check if actively loading OR buffer not ready yet
-        bool isCurrentlyLoading = loader.IsLoading || (!loader.IsLoaded && loader.buffer == null);
+        bool isCurrentlyLoading = GetIsLoading();
+        bool isLoaded = GetIsLoaded();
 
         if (isCurrentlyLoading)
         {
@@ -67,7 +89,7 @@ public class DatasetLoadingIndicator : MonoBehaviour
             wasLoading = true;
             hasHidden = false;
         }
-        else if (wasLoading && !hasHidden && loader.IsLoaded)
+        else if (wasLoading && !hasHidden && isLoaded)
         {
             // Just finished loading
             Debug.Log("✅ Dataset finished loading! Hiding panel...");
