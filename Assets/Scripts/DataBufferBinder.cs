@@ -25,6 +25,14 @@ public class ParticleAnimationController : MonoBehaviour
 	public string placeholderStepProperty = "CurrentTimestep";
 	public string placeholderMainColorProperty = "MainColor";
 
+	[Header("Pollutant Variants")]
+	public VisualEffectAsset pollutant1Vfx; // sphere
+	public VisualEffectAsset pollutant2Vfx; // cube
+	public VisualEffectAsset pollutant3Vfx; // plume (cylinder)
+
+	private VisualEffectAsset currentVfxAsset;
+	private int currentPollutant = 1;
+
 	// Script-driven motion (no VFX Graph edits required)
 	public bool placeholderUseScriptMotion = true;
 	public Vector3 placeholderStepOffset = new Vector3(0f, 0f, 0.25f);
@@ -39,6 +47,21 @@ public class ParticleAnimationController : MonoBehaviour
 	private Vector3 placeholderMoveVelocity;
 	private Vector3 placeholderTargetPosition;
 	private Quaternion placeholderTargetRotation;
+
+	// Multi-instance support for showing multiple pollutants at once
+	private class PollutantRuntime
+	{
+		public VisualEffect vfx;
+		public Vector3 basePos;
+		public Quaternion baseRot;
+		public Vector3 targetPos;
+		public Quaternion targetRot;
+		public Vector3 moveVel;
+		public Vector3 stepOffset;
+		public float stepYawDeg;
+	}
+
+	private readonly System.Collections.Generic.Dictionary<int, PollutantRuntime> activePollutants = new System.Collections.Generic.Dictionary<int, PollutantRuntime>();
 
     [Header("Timestep Control")]
     public int currentTimestep = 0;
@@ -191,22 +214,24 @@ public class ParticleAnimationController : MonoBehaviour
                 lastDispatchedTimestep = currentTimestep;
             }
 
-			// Smoothly ease transform toward targets each frame
-			if (placeholderSmoothMotion && placeholderVfxInstance != null)
+			// Smoothly ease transforms for all active instances
+			if (placeholderSmoothMotion)
 			{
-				placeholderVfxInstance.transform.position =
-					Vector3.SmoothDamp(
-						placeholderVfxInstance.transform.position,
-						placeholderTargetPosition,
-						ref placeholderMoveVelocity,
+				foreach (var kv in activePollutants)
+				{
+					var rt = kv.Value;
+					if (rt == null || rt.vfx == null) continue;
+					rt.vfx.transform.position = Vector3.SmoothDamp(
+						rt.vfx.transform.position,
+						rt.targetPos,
+						ref rt.moveVel,
 						placeholderMoveSmoothTime);
-
-				float rT = 1f - Mathf.Exp(-placeholderRotateLerpSpeed * Time.deltaTime);
-				placeholderVfxInstance.transform.rotation =
-					Quaternion.Slerp(
-						placeholderVfxInstance.transform.rotation,
-						placeholderTargetRotation,
+					float rT = 1f - Mathf.Exp(-placeholderRotateLerpSpeed * Time.deltaTime);
+					rt.vfx.transform.rotation = Quaternion.Slerp(
+						rt.vfx.transform.rotation,
+						rt.targetRot,
 						rT);
+				}
 			}
 
             return; // Skip dataset path entirely
@@ -299,24 +324,26 @@ public class ParticleAnimationController : MonoBehaviour
 
 	void ApplyPlaceholderStep()
 	{
-		if (placeholderVfxInstance != null && !string.IsNullOrEmpty(placeholderStepProperty))
+		// Drive all active pollutant instances
+		foreach (var kv in activePollutants)
 		{
-			placeholderVfxInstance.SetInt(placeholderStepProperty, currentTimestep);
-		}
+			var rt = kv.Value;
+			if (rt == null || rt.vfx == null) continue;
+			if (!string.IsNullOrEmpty(placeholderStepProperty))
+			{
+				rt.vfx.SetInt(placeholderStepProperty, currentTimestep);
+			}
 
-		// Compute new targets for this timestep
-		if (placeholderUseScriptMotion && placeholderVfxInstance != null)
-		{
-			var stepPos = placeholderBasePosition + (placeholderStepOffset * currentTimestep);
-			var stepYaw = Quaternion.Euler(0f, placeholderStepYawDegrees * currentTimestep, 0f);
-			var stepRot = stepYaw * placeholderBaseRotation;
-
-			placeholderTargetPosition = stepPos;
-			placeholderTargetRotation = stepRot;
-
-			// If smoothing is disabled, snap immediately
-			if (!placeholderSmoothMotion)
-				placeholderVfxInstance.transform.SetPositionAndRotation(stepPos, stepRot);
+			if (placeholderUseScriptMotion)
+			{
+				var stepPos = rt.basePos + (rt.stepOffset * currentTimestep);
+				var stepYaw = Quaternion.Euler(0f, rt.stepYawDeg * currentTimestep, 0f);
+				var stepRot = stepYaw * rt.baseRot;
+				rt.targetPos = stepPos;
+				rt.targetRot = stepRot;
+				if (!placeholderSmoothMotion)
+					rt.vfx.transform.SetPositionAndRotation(stepPos, stepRot);
+			}
 		}
 	}
 
@@ -339,56 +366,36 @@ public class ParticleAnimationController : MonoBehaviour
             return;
         }
 
-		// If a placeholder VFX asset is provided, spawn/play it instead of the old dataset flow
-		if (placeholderVfxAsset != null
-#if UNITY_EDITOR
-			|| (placeholderVfxAsset = AssetDatabase.LoadAssetAtPath<VisualEffectAsset>("Assets/PlaceholderVisualization/PlaceholderVisualisation.vfx")) != null
-#endif
-		)
-		{
-			Debug.Log("🚀 Initializing placeholder VFX instead of dataset...");
-			if (placeholderVfxInstance == null)
-			{
-				var go = new GameObject("PlaceholderVFX");
-				if (placeholderParent != null)
-					go.transform.SetParent(placeholderParent, false);
-				var spawn = placeholderSpawnPosition;
-				var cam = Camera.main;
-				if (placeholderParent == null && cam != null && spawn == Vector3.zero)
-					spawn = cam.transform.position + cam.transform.forward * placeholderSpawnDistance;
-				go.transform.position = spawn;
-				placeholderVfxInstance = go.AddComponent<VisualEffect>();
-				placeholderVfxInstance.visualEffectAsset = placeholderVfxAsset;
-			}
-			else
-			{
-				var spawn = placeholderSpawnPosition;
-				var cam = Camera.main;
-				if (placeholderParent == null && cam != null && spawn == Vector3.zero)
-					spawn = cam.transform.position + cam.transform.forward * placeholderSpawnDistance;
-				placeholderVfxInstance.transform.position = spawn;
-			}
+        // Disable/stop the dataset-driven VisualEffect and switch into placeholder mode
+        if (vfx == null) vfx = GetComponent<VisualEffect>();
+        vfx.Stop();
+        vfx.Reinit();
+        vfx.enabled = false;
 
-			// Remember base transform for script-driven motion
-			placeholderBasePosition = placeholderVfxInstance.transform.position;
-			placeholderBaseRotation = placeholderVfxInstance.transform.rotation;
-			placeholderTargetPosition = placeholderBasePosition;
-			placeholderTargetRotation = placeholderBaseRotation;
-			placeholderMoveVelocity = Vector3.zero;
+        // Clear any previous single-instance placeholder
+        if (placeholderVfxInstance != null)
+        {
+            placeholderVfxInstance.Stop();
+            Destroy(placeholderVfxInstance.gameObject);
+            placeholderVfxInstance = null;
+        }
 
-			placeholderVfxInstance.Reinit();
-			placeholderVfxInstance.Play();
-			isInitialized = true;
-			usingPlaceholder = true;
-			currentTimestep = 0;
-			timeSinceLastStep = 0f;
-			lastDispatchedTimestep = -1;
-			ApplyPlaceholderStep();
-			return;
-		}
+        // Clear multi-instance registry (safety)
+        foreach (var kv in activePollutants)
+        {
+            if (kv.Value != null && kv.Value.vfx != null)
+                Destroy(kv.Value.vfx.gameObject);
+        }
+        activePollutants.Clear();
 
-		Debug.Log("🚀 Initializing dataset...");
-		StartCoroutine(WaitForBufferAndInit());
+        // Enter placeholder control path; no auto-spawn. Use toggles to add pollutants
+        isInitialized = true;
+        usingPlaceholder = true;
+        currentTimestep = 0;
+        timeSinceLastStep = 0f;
+        lastDispatchedTimestep = -1;
+        Debug.Log("🚀 Placeholder controller initialized. Use pollutant toggles to spawn instances.");
+        return;
     }
 
     /// <summary>
@@ -407,20 +414,34 @@ public class ParticleAnimationController : MonoBehaviour
         // Stop auto-play
         autoPlay = false;
 
-        // Stop and clear VFX
+        // Stop and clear dataset-driven VFX
         vfx.Stop();
         vfx.Reinit();
 
-		// Stop and remove placeholder VFX if it was used
-		if (placeholderVfxInstance != null)
-		{
-			placeholderVfxInstance.Stop();
-			Destroy(placeholderVfxInstance.gameObject);
-			placeholderVfxInstance = null;
-		}
+        // Stop and remove any legacy single placeholder instance
+        if (placeholderVfxInstance != null)
+        {
+            placeholderVfxInstance.Stop();
+            Destroy(placeholderVfxInstance.gameObject);
+            placeholderVfxInstance = null;
+        }
+
+        // Stop and remove all active pollutant instances
+        foreach (var kv in activePollutants)
+        {
+            if (kv.Value != null && kv.Value.vfx != null)
+            {
+                kv.Value.vfx.Stop();
+                Destroy(kv.Value.vfx.gameObject);
+            }
+        }
+        activePollutants.Clear();
 
 		usingPlaceholder = false;
 		placeholderMoveVelocity = Vector3.zero;
+
+        // Re-enable the dataset VFX component for next time
+        if (vfx != null) vfx.enabled = true;
 
         // Release buffers
         rawBuffer?.Release();
@@ -598,9 +619,17 @@ public class ParticleAnimationController : MonoBehaviour
     // === Placeholder color controls (for EditorCanvas buttons) ===
     public void SetMainColor(float r, float g, float b, float a = 1f)
     {
-        if (placeholderVfxInstance != null && !string.IsNullOrEmpty(placeholderMainColorProperty))
+        if (!string.IsNullOrEmpty(placeholderMainColorProperty))
         {
-            placeholderVfxInstance.SetVector4(placeholderMainColorProperty, new Vector4(r, g, b, a));
+            // Apply to all active pollutant instances
+            foreach (var kv in activePollutants)
+            {
+                var rt = kv.Value;
+                if (rt != null && rt.vfx != null)
+                {
+                    rt.vfx.SetVector4(placeholderMainColorProperty, new Vector4(r, g, b, a));
+                }
+            }
         }
     }
 
@@ -613,4 +642,96 @@ public class ParticleAnimationController : MonoBehaviour
     public void SetMainColorBlueToggle(bool isOn)   { if (isOn) SetMainColorBlue(); }
     public void SetMainColorYellowToggle(bool isOn) { if (isOn) SetMainColorYellow(); }
 
+	public void SelectPollutant1Toggle(bool isOn) { if (isOn) SelectPollutant(1); }
+	public void SelectPollutant2Toggle(bool isOn) { if (isOn) SelectPollutant(2); }
+	public void SelectPollutant3Toggle(bool isOn) { if (isOn) SelectPollutant(3); }
+
+	public void SelectPollutant(int id)
+	{
+		// Legacy single-instance selector is no longer used in multi-instance mode.
+		// Keep method to avoid broken scene references; redirect to Toggle-style behavior: ensure only this pollutant is active.
+		foreach (var key in new System.Collections.Generic.List<int>(activePollutants.Keys))
+		{
+			if (key != id) DespawnPollutant(key);
+		}
+		TogglePollutant(id, true);
+	}
+
+	// === Multi-instance API for UI toggles ===
+	public void TogglePollutant1(bool on) { TogglePollutant(1, on); }
+	public void TogglePollutant2(bool on) { TogglePollutant(2, on); }
+	public void TogglePollutant3(bool on) { TogglePollutant(3, on); }
+
+	void TogglePollutant(int id, bool on)
+	{
+		if (on) SpawnPollutant(id); else DespawnPollutant(id);
+	}
+
+	VisualEffectAsset GetAssetForPollutant(int id)
+	{
+		switch (id)
+		{
+			case 1: return pollutant1Vfx ?? currentVfxAsset ?? placeholderVfxAsset; 
+			case 2: return pollutant2Vfx ?? currentVfxAsset ?? placeholderVfxAsset; 
+			case 3: return pollutant3Vfx ?? currentVfxAsset ?? placeholderVfxAsset; 
+			default: return placeholderVfxAsset;
+		}
+	}
+
+	Vector3 GetSpawnPositionWithOffset(Vector3 localOffset)
+	{
+		var cam = Camera.main;
+		var spawn = placeholderSpawnPosition;
+		if (placeholderParent == null && cam != null && spawn == Vector3.zero)
+			spawn = cam.transform.position + cam.transform.forward * placeholderSpawnDistance;
+		// make offset relative to camera orientation so multiple instances spread around view
+		if (cam != null) spawn += cam.transform.TransformDirection(localOffset); else spawn += localOffset;
+		return spawn;
+	}
+
+	void SpawnPollutant(int id)
+	{
+		if (activePollutants.ContainsKey(id)) return; // already active
+		var asset = GetAssetForPollutant(id);
+		if (asset == null)
+		{
+			Debug.LogWarning($"Pollutant {id} VFX not assigned.");
+			return;
+		}
+		var go = new GameObject($"Pollutant{id}_VFX");
+		if (placeholderParent != null) go.transform.SetParent(placeholderParent, false);
+		// Per-pollutant spawn offsets
+		Vector3 offset = id == 1 ? Vector3.zero : id == 2 ? new Vector3(1.0f, 0f, 0.5f) : new Vector3(-1.0f, 0.5f, 0.5f);
+		go.transform.position = GetSpawnPositionWithOffset(offset);
+		var v = go.AddComponent<VisualEffect>();
+		v.visualEffectAsset = asset;
+		v.Reinit();
+		v.Play();
+		var rt = new PollutantRuntime
+		{
+			vfx = v,
+			basePos = go.transform.position,
+			baseRot = go.transform.rotation,
+			targetPos = go.transform.position,
+			targetRot = go.transform.rotation,
+			moveVel = Vector3.zero,
+			stepOffset = (id == 1) ? new Vector3(0.02f, 0.02f, 0.02f)
+				: (id == 2) ? new Vector3(0.025f, 0.015f, 0.025f)
+				: new Vector3(0.015f, 0.03f, 0.015f),
+			stepYawDeg = (id == 1) ? 5f : (id == 2) ? 6f : 4f
+		};
+		activePollutants[id] = rt;
+		// Apply current color/timestep immediately
+		if (!string.IsNullOrEmpty(placeholderMainColorProperty))
+			v.SetVector4(placeholderMainColorProperty, new Vector4(1f,1f,1f,1f));
+		if (!string.IsNullOrEmpty(placeholderStepProperty))
+			v.SetInt(placeholderStepProperty, currentTimestep);
+	}
+
+	void DespawnPollutant(int id)
+	{
+		if (!activePollutants.TryGetValue(id, out var rt) || rt == null) return;
+		if (rt.vfx != null) { rt.vfx.Stop(); Destroy(rt.vfx.gameObject); }
+		activePollutants.Remove(id);
+	}
 }
