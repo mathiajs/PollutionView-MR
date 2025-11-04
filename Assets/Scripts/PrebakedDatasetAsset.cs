@@ -19,6 +19,12 @@ public class PrebakedDatasetAsset : ScriptableObject
     public int downsamplingFactor;
     public int timeDim, zDim, yDim, xDim;
 
+    [Header("Value Ranges")]
+    public int minX, maxX;
+    public int minY, maxY;
+    public int minZ, maxZ;
+    public float minQ, maxQ;
+
     [Header("Particle Data")]
     [HideInInspector]
     public byte[] serializedData; // Stores particle data as byte array

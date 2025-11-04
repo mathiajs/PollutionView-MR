@@ -104,6 +104,15 @@ public class DatasetAssetBaker : EditorWindow
             int missingCount = 0;
             int validCount = 0;
 
+            // Track min/max values
+            int minX = int.MaxValue, maxX = int.MinValue;
+            int minY = int.MaxValue, maxY = int.MinValue;
+            int minZ = int.MaxValue, maxZ = int.MinValue;
+            float minQ = float.MaxValue, maxQ = float.MinValue;
+
+            // Count particles at origin
+            int originCount = 0;
+
             for (int t = 0; t < time; t++)
             {
                 EditorUtility.DisplayProgressBar(
@@ -139,7 +148,10 @@ public class DatasetAssetBaker : EditorWindow
 
                             // Exclude origin if enabled
                             if (excludeOrigin && xx == 0 && yy == 0 && zz == 0)
+                            {
+                                originCount++;
                                 continue;
+                            }
 
                             // Apply threshold filter
                             if (value < minThreshold || value > maxThreshold) continue;
@@ -159,6 +171,16 @@ public class DatasetAssetBaker : EditorWindow
                                 x = xx,
                                 q = value
                             });
+
+                            // Update min/max tracking
+                            if (xx < minX) minX = xx;
+                            if (xx > maxX) maxX = xx;
+                            if (yy < minY) minY = yy;
+                            if (yy > maxY) maxY = yy;
+                            if (zz < minZ) minZ = zz;
+                            if (zz > maxZ) maxZ = zz;
+                            if (value < minQ) minQ = value;
+                            if (value > maxQ) maxQ = value;
                         }
                     }
                 }
@@ -176,6 +198,16 @@ public class DatasetAssetBaker : EditorWindow
             asset.zDim = stepZ;
             asset.yDim = stepY;
             asset.xDim = stepX;
+
+            // Store min/max ranges
+            asset.minX = minX;
+            asset.maxX = maxX;
+            asset.minY = minY;
+            asset.maxY = maxY;
+            asset.minZ = minZ;
+            asset.maxZ = maxZ;
+            asset.minQ = minQ;
+            asset.maxQ = maxQ;
 
             // Serialize particle data to byte array
             int structSize = sizeof(int) * 4 + sizeof(float);
@@ -215,7 +247,17 @@ public class DatasetAssetBaker : EditorWindow
             Debug.Log($"✅ Dataset baked successfully!\n" +
                       $"Particles: {particles.Count:N0}\n" +
                       $"Asset: {assetPath}\n" +
-                      $"Size: {sizeMB:F2} MB");
+                      $"Size: {sizeMB:F2} MB\n" +
+                      $"\n=== VALUE RANGES ===\n" +
+                      $"X: {minX} to {maxX}\n" +
+                      $"Y: {minY} to {maxY}\n" +
+                      $"Z: {minZ} to {maxZ}\n" +
+                      $"Q: {minQ:F6} to {maxQ:F6}\n" +
+                      $"\n=== FILTERING STATS ===\n" +
+                      $"Total checked: {totalChecked:N0}\n" +
+                      $"Missing data: {missingCount:N0}\n" +
+                      $"Valid values: {validCount:N0}\n" +
+                      $"Origin (0,0,0) excluded: {originCount}");
 
             // Select the asset
             Selection.activeObject = asset;

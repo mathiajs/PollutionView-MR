@@ -4,14 +4,16 @@ using UnityEngine.VFX;
 [RequireComponent(typeof(VisualEffect))]
 public class ParticleAnimationController : MonoBehaviour
 {
-    [Header("Data Source (choose one)")]
-    public HDF5_InspectAndRead reader; // Legacy: slow runtime processing
-    public FastDatasetLoader fastLoader; // Fast: preprocessed binary file
+    [Header("Data Source")]
     public PrebakedDatasetLoader prebakedLoader; // FASTEST: Unity asset (instant load!)
 
     public ComputeShader preprocessShader;
     public bool useTestData = true; // toggle in Inspector
     public bool initializeOnStart = false; // if false, wait for manual initialization (RECOMMENDED: keep false to avoid startup freeze)
+
+    [Header("Debug Settings")]
+    [Tooltip("Enable expensive GPU readback logging (causes LAG! Disable for Quest builds)")]
+    public bool enableDebugLogging = false; // Set to FALSE for production/Quest!
 
     [Header("Timestep Control")]
     public int currentTimestep = 0;
@@ -92,70 +94,46 @@ public class ParticleAnimationController : MonoBehaviour
         // --- Normal data path ---
         else
         {
-            // Try loaders in order of speed: prebaked > fast > legacy
-            GraphicsBuffer sourceBuffer = null;
-
-            if (prebakedLoader != null)
+            if (prebakedLoader == null)
             {
-                Debug.Log("🚀 Using PrebakedDatasetLoader (INSTANT Unity asset)...");
-
-                // Wait for prebaked loader to finish (should be instant)
-                float startTime = Time.realtimeSinceStartup;
-                while (prebakedLoader.buffer == null && !prebakedLoader.IsLoaded)
-                {
-                    if (Time.realtimeSinceStartup - startTime > 5f)
-                    {
-                        Debug.LogError("❌ PrebakedDatasetLoader timed out after 5 seconds!");
-                        enabled = false;
-                        yield break;
-                    }
-                    yield return null;
-                }
-
-                sourceBuffer = prebakedLoader.buffer;
-                Debug.Log($"✅ Prebaked loader ready! Load time: {Time.realtimeSinceStartup - startTime:F3}s");
-            }
-            else if (fastLoader != null)
-            {
-                Debug.Log("⚡ Using FastDatasetLoader (preprocessed data)...");
-
-                // Start loading if not already started
-                if (!fastLoader.IsLoaded && fastLoader.buffer == null)
-                {
-                    fastLoader.StartLoading();
-                }
-
-                // Wait for loader to finish (with timeout)
-                float startTime = Time.realtimeSinceStartup;
-                while (fastLoader.buffer == null)
-                {
-                    if (Time.realtimeSinceStartup - startTime > 30f)
-                    {
-                        Debug.LogError("❌ FastDatasetLoader timed out after 30 seconds!");
-                        enabled = false;
-                        yield break;
-                    }
-                    yield return null;
-                }
-
-                sourceBuffer = fastLoader.buffer;
-                Debug.Log("✅ Fast loader ready!");
-            }
-            else if (reader != null)
-            {
-                Debug.Log("⚠️ Using HDF5_InspectAndRead (slow legacy mode)...");
-                while (reader.buffer == null)
-                    yield return null;
-
-                sourceBuffer = reader.buffer;
-                Debug.Log("✅ Legacy reader ready!");
-            }
-            else
-            {
-                Debug.LogError("❌ No data source assigned! Assign PrebakedDatasetLoader, FastDatasetLoader, or HDF5_InspectAndRead.");
+                Debug.LogError("❌ No data source assigned! Assign PrebakedDatasetLoader in the Inspector.");
                 enabled = false;
                 yield break;
             }
+
+            Debug.Log("🚀 Using PrebakedDatasetLoader (INSTANT Unity asset)...");
+
+            // Wait for prebaked loader to finish (should be instant)
+            float startTime = Time.realtimeSinceStartup;
+            while (prebakedLoader.buffer == null && !prebakedLoader.IsLoaded)
+            {
+                if (Time.realtimeSinceStartup - startTime > 5f)
+                {
+                    Debug.LogError("❌ PrebakedDatasetLoader timed out after 5 seconds!");
+                    enabled = false;
+                    yield break;
+                }
+                yield return null;
+            }
+
+            GraphicsBuffer sourceBuffer = prebakedLoader.buffer;
+            Debug.Log($"✅ Prebaked loader ready! Load time: {Time.realtimeSinceStartup - startTime:F3}s");
+
+            // Pass min/max values to VFX Graph for normalization/visualization
+            vfx.SetInt("MinX", prebakedLoader.MinX);
+            vfx.SetInt("MaxX", prebakedLoader.MaxX);
+            vfx.SetInt("MinY", prebakedLoader.MinY);
+            vfx.SetInt("MaxY", prebakedLoader.MaxY);
+            vfx.SetInt("MinZ", prebakedLoader.MinZ);
+            vfx.SetInt("MaxZ", prebakedLoader.MaxZ);
+            vfx.SetFloat("MinQ", prebakedLoader.MinQ);
+            vfx.SetFloat("MaxQ", prebakedLoader.MaxQ);
+
+            Debug.Log($"📊 Value ranges passed to VFX:\n" +
+                     $"X: {prebakedLoader.MinX} to {prebakedLoader.MaxX}\n" +
+                     $"Y: {prebakedLoader.MinY} to {prebakedLoader.MaxY}\n" +
+                     $"Z: {prebakedLoader.MinZ} to {prebakedLoader.MaxZ}\n" +
+                     $"Q: {prebakedLoader.MinQ:F6} to {prebakedLoader.MaxQ:F6}");
 
             if (preprocessShader == null)
             {
@@ -169,22 +147,25 @@ public class ParticleAnimationController : MonoBehaviour
             rawBuffer = sourceBuffer;
             pointCount = rawBuffer.count;
 
-            // Debug: Analyze timestep distribution in real data
-            HDF5_InspectAndRead.ParticleData[] sampleData = new HDF5_InspectAndRead.ParticleData[Mathf.Min(100, pointCount)];
-            rawBuffer.GetData(sampleData, 0, 0, sampleData.Length);
-
-            int[] timestepCounts = new int[20]; // Count particles per timestep
-            for (int i = 0; i < sampleData.Length; i++)
+            // Debug: Analyze timestep distribution in real data (EXPENSIVE - only if debug enabled)
+            if (enableDebugLogging)
             {
-                if (sampleData[i].t >= 0 && sampleData[i].t < timestepCounts.Length)
-                    timestepCounts[sampleData[i].t]++;
-            }
+                ParticleData[] sampleData = new ParticleData[Mathf.Min(100, pointCount)];
+                rawBuffer.GetData(sampleData, 0, 0, sampleData.Length);
 
-            Debug.Log("=== TIMESTEP DISTRIBUTION (first 100 particles) ===");
-            for (int t = 0; t < timestepCounts.Length; t++)
-            {
-                if (timestepCounts[t] > 0)
-                    Debug.Log($"Timestep {t}: {timestepCounts[t]} particles");
+                int[] timestepCounts = new int[20]; // Count particles per timestep
+                for (int i = 0; i < sampleData.Length; i++)
+                {
+                    if (sampleData[i].t >= 0 && sampleData[i].t < timestepCounts.Length)
+                        timestepCounts[sampleData[i].t]++;
+                }
+
+                Debug.Log("=== TIMESTEP DISTRIBUTION (first 100 particles) ===");
+                for (int t = 0; t < timestepCounts.Length; t++)
+                {
+                    if (timestepCounts[t] > 0)
+                        Debug.Log($"Timestep {t}: {timestepCounts[t]} particles");
+                }
             }
 
             // Output buffer needs to match ParticleData struct size
@@ -245,47 +226,57 @@ public class ParticleAnimationController : MonoBehaviour
             Debug.LogError("Compute shader is null! Cannot process particle data.");
         }
 
-        // Find and log first 20 particles matching current timestep
-        HDF5_InspectAndRead.ParticleData[] allData = new HDF5_InspectAndRead.ParticleData[pointCount];
-        visualBuffer.GetData(allData);
-
-        int matchCount = 0;
-        int loggedCount = 0;
-        Debug.Log($"=== PARTICLES MATCHING TIMESTEP {step} (first 20) ===");
-
-        for (int i = 0; i < allData.Length && loggedCount < 20; i++)
+        // Debug: Find and log particles matching current timestep (VERY EXPENSIVE - GPU readback!)
+        if (enableDebugLogging)
         {
-            if (allData[i].t == step)
+            ParticleData[] allData = new ParticleData[pointCount];
+            visualBuffer.GetData(allData);
+
+            int matchCount = 0;
+            int loggedCount = 0;
+            Debug.Log($"=== PARTICLES MATCHING TIMESTEP {step} (first 20) ===");
+
+            for (int i = 0; i < allData.Length && loggedCount < 20; i++)
             {
-                if (loggedCount < 20)
+                if (allData[i].t == step)
                 {
-                    Debug.Log($"[index {i}] t={allData[i].t} x={allData[i].x} y={allData[i].y} z={allData[i].z} q={allData[i].q:F5}");
-                    loggedCount++;
+                    if (loggedCount < 20)
+                    {
+                        Debug.Log($"[index {i}] t={allData[i].t} x={allData[i].x} y={allData[i].y} z={allData[i].z} q={allData[i].q:F5}");
+                        loggedCount++;
+                    }
+                    matchCount++;
                 }
-                matchCount++;
+            }
+
+            Debug.Log($"📊 Timestep {step}: Found {matchCount} particles out of {pointCount} total ({(matchCount * 100f / pointCount):F2}%)");
+
+            // Check if we need more capacity
+            if (matchCount > 40000)
+            {
+                Debug.LogWarning($"⚠️ WARNING: {matchCount} particles for timestep {step}, but VFX capacity is only 40,000!");
+                Debug.LogWarning($"   Open Dataset_Visual.vfx and increase capacity to at least {Mathf.CeilToInt(matchCount * 1.2f)}");
             }
         }
-
-        Debug.Log($"📊 Timestep {step}: Found {matchCount} particles out of {pointCount} total ({(matchCount * 100f / pointCount):F2}%)");
-
-        // Check if we need more capacity
-        if (matchCount > 40000)
+        else
         {
-            Debug.LogWarning($"⚠️ WARNING: {matchCount} particles for timestep {step}, but VFX capacity is only 40,000!");
-            Debug.LogWarning($"   Open Dataset_Visual.vfx and increase capacity to at least {Mathf.CeilToInt(matchCount * 1.2f)}");
+            Debug.Log($"🔄 Switched to timestep {step}");
         }
 
         vfx.SetUInt("PointCount", (uint)pointCount);
         vfx.SetInt("CurrentTimestep", step);
         vfx.SetGraphicsBuffer("DataBuffer", visualBuffer);
 
-        if (!vfx.HasGraphicsBuffer("DataBuffer"))
-            Debug.LogError("VFX Graph is missing DataBuffer!");
-        else
-            Debug.Log($"✅ Bound DataBuffer with {pointCount} points to VFX.");
+        if (enableDebugLogging)
+        {
+            if (!vfx.HasGraphicsBuffer("DataBuffer"))
+                Debug.LogError("VFX Graph is missing DataBuffer!");
+            else
+                Debug.Log($"✅ Bound DataBuffer with {pointCount} points to VFX.");
 
-        // Verify VFX parameters
-        Debug.Log($"VFX Parameters: PointCount={vfx.GetUInt("PointCount")}, CurrentTimestep={vfx.GetInt("CurrentTimestep")}");
+            // Verify VFX parameters
+            Debug.Log($"VFX Parameters: PointCount={vfx.GetUInt("PointCount")}, CurrentTimestep={vfx.GetInt("CurrentTimestep")}");
+        }
 
         // Force VFX to respawn particles by stopping and restarting
         vfx.Stop();
@@ -341,7 +332,7 @@ public class ParticleAnimationController : MonoBehaviour
         visualBuffer?.Release();
         visualBuffer = null;
 
-        // Note: rawBuffer is kept because it's managed by FastDatasetLoader/HDF5Reader
+        // Note: rawBuffer is kept because it's managed by PrebakedDatasetLoader
         // We just clear our reference to the visual buffer
 
         // Reset state
@@ -448,7 +439,7 @@ public class ParticleAnimationController : MonoBehaviour
         int width = 50, height = 15, depth = 50;
         pointCount = width * height * depth;
 
-        HDF5_InspectAndRead.ParticleData[] points = new HDF5_InspectAndRead.ParticleData[pointCount];
+        ParticleData[] points = new ParticleData[pointCount];
         int index = 0;
 
         for (int z = 0; z < depth; z++)
@@ -457,7 +448,7 @@ public class ParticleAnimationController : MonoBehaviour
             {
                 for (int x = 0; x < width; x++)
                 {
-                    points[index] = new HDF5_InspectAndRead.ParticleData
+                    points[index] = new ParticleData
                     {
                         t = 0,          // All particles at timestep 0
                         z = z,

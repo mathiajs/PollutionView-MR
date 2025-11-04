@@ -21,6 +21,16 @@ public class PrebakedDatasetLoader : MonoBehaviour
     public bool IsLoaded => isLoaded;
     public int ParticleCount => datasetAsset != null ? datasetAsset.particleCount : 0;
 
+    // Public accessors for value ranges
+    public int MinX => datasetAsset != null ? datasetAsset.minX : 0;
+    public int MaxX => datasetAsset != null ? datasetAsset.maxX : 0;
+    public int MinY => datasetAsset != null ? datasetAsset.minY : 0;
+    public int MaxY => datasetAsset != null ? datasetAsset.maxY : 0;
+    public int MinZ => datasetAsset != null ? datasetAsset.minZ : 0;
+    public int MaxZ => datasetAsset != null ? datasetAsset.maxZ : 0;
+    public float MinQ => datasetAsset != null ? datasetAsset.minQ : 0f;
+    public float MaxQ => datasetAsset != null ? datasetAsset.maxQ : 0f;
+
     void Start()
     {
         if (loadOnStart && datasetAsset != null)

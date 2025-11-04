@@ -2,15 +2,14 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Loading indicator that monitors FastDatasetLoader progress.
+/// Loading indicator that monitors PrebakedDatasetLoader progress.
 /// Shows loading status and automatically hides when complete.
 /// Works with both legacy Text and TextMeshPro.
 /// </summary>
 public class DatasetLoadingIndicator : MonoBehaviour
 {
     [Header("References")]
-    public FastDatasetLoader loader; // Legacy support
-    public PrebakedDatasetLoader prebakedLoader; // Preferred
+    public PrebakedDatasetLoader prebakedLoader;
     public GameObject loadingPanel; // The panel to show/hide
 
     [Header("Text (use one)")]
@@ -41,7 +40,7 @@ public class DatasetLoadingIndicator : MonoBehaviour
         {
             if (loadingPanel == null)
                 Debug.LogWarning("⚠️ LoadingPanel reference is missing!");
-            if (loader == null && prebakedLoader == null)
+            if (prebakedLoader == null)
                 Debug.LogWarning("⚠️ No loader reference assigned!");
             if (isLoaded)
                 Debug.Log("ℹ️ Dataset already loaded, hiding panel");
@@ -52,24 +51,20 @@ public class DatasetLoadingIndicator : MonoBehaviour
     {
         if (prebakedLoader != null)
             return prebakedLoader.IsLoaded;
-        if (loader != null)
-            return loader.IsLoaded;
         return false;
     }
 
     bool GetIsLoading()
     {
-        // Prebaked loader doesn't have IsLoading, it's instant
+        // Prebaked loader is instant, so check if it's not loaded yet
         if (prebakedLoader != null)
             return !prebakedLoader.IsLoaded;
-        if (loader != null)
-            return loader.IsLoading || (!loader.IsLoaded && loader.buffer == null);
         return false;
     }
 
     void Update()
     {
-        if (loader == null && prebakedLoader == null) return;
+        if (prebakedLoader == null) return;
 
         bool isCurrentlyLoading = GetIsLoading();
         bool isLoaded = GetIsLoaded();

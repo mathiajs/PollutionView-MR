@@ -530,11 +530,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7114770129336771049, guid: df64bf5efda75be4db0c812f9277d678, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.486
+      value: 1.01
       objectReference: {fileID: 0}
     - target: {fileID: 7114770129336771049, guid: df64bf5efda75be4db0c812f9277d678, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.685
+      value: 0.658
       objectReference: {fileID: 0}
     - target: {fileID: 7114770129336771049, guid: df64bf5efda75be4db0c812f9277d678, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1185,11 +1185,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 390698397941270696, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 390698397941270696, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 390698397941270696, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: m_SizeDelta.x
@@ -1213,11 +1213,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 390698397941270696, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 66.5
       objectReference: {fileID: 0}
     - target: {fileID: 390698397941270696, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -23.016497
       objectReference: {fileID: 0}
     - target: {fileID: 2120627734229879182, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
@@ -1441,7 +1441,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7542354360110892547, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7542354360110892547, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: m_AnchorMin.x
@@ -1449,7 +1449,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7542354360110892547, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7542354360110892547, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: m_SizeDelta.x
@@ -1461,11 +1461,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7542354360110892547, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 66.5
       objectReference: {fileID: 0}
     - target: {fileID: 7542354360110892547, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -15.016497
       objectReference: {fileID: 0}
     - target: {fileID: 8182325033161516267, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.size
@@ -2583,8 +2583,6 @@ GameObject:
   - component: {fileID: 126820950}
   - component: {fileID: 126820949}
   - component: {fileID: 126820948}
-  - component: {fileID: 126820951}
-  - component: {fileID: 126820952}
   m_Layer: 0
   m_Name: Reader
   m_TagString: Untagged
@@ -2601,7 +2599,7 @@ Transform:
   m_GameObject: {fileID: 126820944}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.537, y: 1.178, z: 0.527}
+  m_LocalPosition: {x: -0.88, y: 1.178, z: 0.527}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2619,12 +2617,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77d460c046f76904a897ebc8d973d350, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DataBufferBinder
-  reader: {fileID: 0}
-  fastLoader: {fileID: 0}
   prebakedLoader: {fileID: 582055381}
   preprocessShader: {fileID: 7200000, guid: b92db6196fa76ae4286523d90b6e6eae, type: 3}
   useTestData: 0
   initializeOnStart: 0
+  enableDebugLogging: 0
   currentTimestep: 0
   autoPlay: 0
   timestepInterval: 1
@@ -2713,37 +2710,6 @@ VisualEffect:
       m_Array: []
     m_Bool:
       m_Array: []
---- !u!114 &126820951
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 126820944}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26a1195e3fd89384abcf39eac9ea9cbd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HDF5_InspectAndRead
-  fileName: dp_3d_clean.001.nc
-  useTestData: 0
---- !u!114 &126820952
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 126820944}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39b1faf5aa983124fa34244019d94dcd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FastDatasetLoader
-  preprocessedFileName: preprocessed_particles.bytes
-  loadOnStart: 1
-  autoLoadOnlyOnDevice: 0
-  particlesPerFrame: 1000
-  isLoading: 0
 --- !u!1 &139626158
 GameObject:
   m_ObjectHideFlags: 0
@@ -6193,7 +6159,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d31383f2e66d38f478a44d38acc72c89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DatasetLoadingIndicator
-  loader: {fileID: 0}
   prebakedLoader: {fileID: 582055381}
   loadingPanel: {fileID: 81749602}
   legacyText: {fileID: 0}
