@@ -48,6 +48,9 @@ public class ParticleAnimationController : MonoBehaviour
 	private Vector3 placeholderTargetPosition;
 	private Quaternion placeholderTargetRotation;
 
+	[Header("Multi-instance layout")]
+	public float pollutantHorizontalSeparation = 1.25f; // meters left/right from center
+
 	// Multi-instance support for showing multiple pollutants at once
 	private class PollutantRuntime
 	{
@@ -700,8 +703,11 @@ public class ParticleAnimationController : MonoBehaviour
 		}
 		var go = new GameObject($"Pollutant{id}_VFX");
 		if (placeholderParent != null) go.transform.SetParent(placeholderParent, false);
-		// Per-pollutant spawn offsets
-		Vector3 offset = id == 1 ? Vector3.zero : id == 2 ? new Vector3(1.0f, 0f, 0.5f) : new Vector3(-1.0f, 0.5f, 0.5f);
+		// Per-pollutant horizontal spawn offsets in camera space (left/center/right)
+		Vector3 offset =
+			id == 1 ? Vector3.zero :
+			id == 2 ? new Vector3(+pollutantHorizontalSeparation, 0f, 0f) :
+			new Vector3(-pollutantHorizontalSeparation, 0f, 0f);
 		go.transform.position = GetSpawnPositionWithOffset(offset);
 		var v = go.AddComponent<VisualEffect>();
 		v.visualEffectAsset = asset;
@@ -721,9 +727,7 @@ public class ParticleAnimationController : MonoBehaviour
 			stepYawDeg = (id == 1) ? 5f : (id == 2) ? 6f : 4f
 		};
 		activePollutants[id] = rt;
-		// Apply current color/timestep immediately
-		if (!string.IsNullOrEmpty(placeholderMainColorProperty))
-			v.SetVector4(placeholderMainColorProperty, new Vector4(1f,1f,1f,1f));
+		// Apply current timestep only; keep asset's default color
 		if (!string.IsNullOrEmpty(placeholderStepProperty))
 			v.SetInt(placeholderStepProperty, currentTimestep);
 	}
