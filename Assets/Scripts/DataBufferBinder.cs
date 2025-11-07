@@ -30,6 +30,7 @@ public class ParticleAnimationController : MonoBehaviour
     private bool isInitialized = false;
     private int lastDispatchedTimestep = -1;
     private float timeSinceLastStep = 0f;
+    private int currentColorScheme = 1; // Track current color scheme
 
     // Public accessor
     public bool IsInitialized => isInitialized;
@@ -134,6 +135,10 @@ public class ParticleAnimationController : MonoBehaviour
                      $"Y: {prebakedLoader.MinY} to {prebakedLoader.MaxY}\n" +
                      $"Z: {prebakedLoader.MinZ} to {prebakedLoader.MaxZ}\n" +
                      $"Q: {prebakedLoader.MinQ:F6} to {prebakedLoader.MaxQ:F6}");
+
+            // Set initial color scheme (default to pollutant 1)
+            vfx.SetInt("ColorScheme", 1);
+            Debug.Log("🎨 Initial color scheme set to Pollutant 1");
 
             if (preprocessShader == null)
             {
@@ -282,6 +287,9 @@ public class ParticleAnimationController : MonoBehaviour
         vfx.Stop();
         vfx.Reinit();
         vfx.Play();
+
+        // Re-apply color scheme after reinit (in case it was reset)
+        vfx.SetInt("ColorScheme", currentColorScheme);
     }
 
     void OnDestroy()
@@ -431,6 +439,36 @@ public class ParticleAnimationController : MonoBehaviour
         currentTimestep = 0;
         autoPlay = false;
         Debug.Log("🔄 Reset to timestep 0");
+    }
+
+    /// <summary>
+    /// Set the color scheme for particle visualization.
+    /// Called by CanvasHelper when user toggles pollutant selection.
+    /// </summary>
+    /// <param name="colorSchemeIndex">1 = Pollutant 1 (Blue-Red), 2 = Pollutant 2, 3 = Pollutant 3</param>
+    public void SetColorScheme(int colorSchemeIndex)
+    {
+        currentColorScheme = colorSchemeIndex;
+
+        if (!isInitialized)
+        {
+            Debug.LogWarning("⚠️ Dataset not initialized yet, but color scheme will be applied when ready.");
+            return;
+        }
+
+        if (vfx != null)
+        {
+            vfx.SetInt("ColorScheme", colorSchemeIndex);
+
+            // Force VFX update by re-applying current timestep
+            vfx.SetInt("CurrentTimestep", currentTimestep);
+
+            Debug.Log($"🎨 VFX color scheme set to: {colorSchemeIndex}");
+        }
+        else
+        {
+            Debug.LogError("❌ VFX reference is null!");
+        }
     }
 
     // 🧱 Generate test cube with single timestep

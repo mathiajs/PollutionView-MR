@@ -1345,7 +1345,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4102898763052618297, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: m_Name
-      value: YellowToggle
+      value: Pollutant3Toggle
       objectReference: {fileID: 0}
     - target: {fileID: 4175696766735012151, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1469,7 +1469,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8182325033161516267, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.size
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8182325033161516267, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
@@ -1851,7 +1851,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4102898763052618297, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: m_Name
-      value: BlueToggle
+      value: Pollutant2Toggle
       objectReference: {fileID: 0}
     - target: {fileID: 4175696766735012151, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1975,7 +1975,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8182325033161516267, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.size
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8182325033161516267, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
@@ -2620,11 +2620,11 @@ MonoBehaviour:
   prebakedLoader: {fileID: 582055381}
   preprocessShader: {fileID: 7200000, guid: b92db6196fa76ae4286523d90b6e6eae, type: 3}
   useTestData: 0
-  initializeOnStart: 0
+  initializeOnStart: 1
   enableDebugLogging: 0
   currentTimestep: 0
-  autoPlay: 0
-  timestepInterval: 1
+  autoPlay: 1
+  timestepInterval: 0.5
   maxTimestep: 10
 --- !u!73398921 &126820949
 VFXRenderer:
@@ -3363,9 +3363,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CubeManager
   canvasInit: {fileID: 1417574637}
   canvasEditor: {fileID: 152888371}
-  redToggle: {fileID: 369302829}
-  blueToggle: {fileID: 1852006357}
-  yellowToggle: {fileID: 1449418802}
+  pollutant1Toggle: {fileID: 0}
+  pollutant2Toggle: {fileID: 0}
+  pollutant3Toggle: {fileID: 0}
+  particleController: {fileID: 0}
+  testPollutant1: 0
+  testPollutant2: 0
+  testPollutant3: 0
 --- !u!1 &161653015
 GameObject:
   m_ObjectHideFlags: 0
@@ -5093,7 +5097,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4102898763052618297, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: m_Name
-      value: RedToggle
+      value: Pollutant1Toggle
       objectReference: {fileID: 0}
     - target: {fileID: 4175696766735012151, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: m_AnchorMax.y
@@ -5217,7 +5221,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8182325033161516267, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.size
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8182325033161516267, guid: 5292db714b0f87045a7dfd9be93b1be5, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
@@ -8693,9 +8697,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CanvasHelper
   canvasInit: {fileID: 1417574637}
   canvasEditor: {fileID: 845719445}
-  redToggle: {fileID: 0}
-  blueToggle: {fileID: 0}
-  yellowToggle: {fileID: 0}
+  pollutant1Toggle: {fileID: 0}
+  pollutant2Toggle: {fileID: 0}
+  pollutant3Toggle: {fileID: 0}
+  particleController: {fileID: 0}
+  testPollutant1: 0
+  testPollutant2: 0
+  testPollutant3: 0
 --- !u!1 &848400200
 GameObject:
   m_ObjectHideFlags: 0
@@ -9795,9 +9803,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CanvasHelper
   canvasInit: {fileID: 1417574637}
   canvasEditor: {fileID: 152888371}
-  redToggle: {fileID: 369302829}
-  blueToggle: {fileID: 1852006357}
-  yellowToggle: {fileID: 1449418802}
+  pollutant1Toggle: {fileID: 369302829}
+  pollutant2Toggle: {fileID: 1852006357}
+  pollutant3Toggle: {fileID: 1449418802}
+  particleController: {fileID: 126820948}
+  testPollutant1: 0
+  testPollutant2: 0
+  testPollutant3: 0
 --- !u!4 &904881745
 Transform:
   m_ObjectHideFlags: 0
@@ -13580,9 +13592,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CubeManager
   canvasInit: {fileID: 1417574637}
   canvasEditor: {fileID: 152888371}
-  redToggle: {fileID: 369302829}
-  blueToggle: {fileID: 1852006357}
-  yellowToggle: {fileID: 1449418802}
+  pollutant1Toggle: {fileID: 0}
+  pollutant2Toggle: {fileID: 0}
+  pollutant3Toggle: {fileID: 0}
+  particleController: {fileID: 0}
+  testPollutant1: 0
+  testPollutant2: 0
+  testPollutant3: 0
 --- !u!1 &1424114678
 GameObject:
   m_ObjectHideFlags: 0
