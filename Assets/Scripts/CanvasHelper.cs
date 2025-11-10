@@ -10,9 +10,9 @@ public class CanvasHelper : MonoBehaviour
     private bool firstTime = true;
 
     // Toggles for pollutants (only one active at a time)
-    public Toggle pollutant1Toggle;  // Blue-Red scale
-    public Toggle pollutant2Toggle;  // Different scale
-    public Toggle pollutant3Toggle;  // Different scale
+    public Toggle pollutant1Toggle;
+    public Toggle pollutant2Toggle;
+    public Toggle pollutant3Toggle;
 
     [Header("Optional: Use ToggleGroup for proper radio button behavior")]
     [Tooltip("Assign the same ToggleGroup to all pollutant toggles in the Inspector")]
@@ -39,15 +39,23 @@ public class CanvasHelper : MonoBehaviour
         canvasInit.SetActive(true);
         canvasEditor.SetActive(false);
 
-        // Set all toggles to false initially
-        if (pollutant1Toggle != null) pollutant1Toggle.isOn = false;
-        if (pollutant2Toggle != null) pollutant2Toggle.isOn = false;
-        if (pollutant3Toggle != null) pollutant3Toggle.isOn = false;
+        // Set up ToggleGroup for radio button behavior
+        if (pollutantToggleGroup != null)
+        {
+            pollutant1Toggle.group = pollutantToggleGroup;
+            pollutant2Toggle.group = pollutantToggleGroup;
+            pollutant3Toggle.group = pollutantToggleGroup;
+            Debug.Log("✅ ToggleGroup assigned to pollutant toggles");
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ PollutantToggleGroup is not assigned! Assign it in the Inspector for proper radio button behavior.");
+        }
 
-        // Add listeners for exclusive toggle behavior
-        if (pollutant1Toggle != null) pollutant1Toggle.onValueChanged.AddListener((isOn) => OnPollutantToggled(1, isOn));
-        if (pollutant2Toggle != null) pollutant2Toggle.onValueChanged.AddListener((isOn) => OnPollutantToggled(2, isOn));
-        if (pollutant3Toggle != null) pollutant3Toggle.onValueChanged.AddListener((isOn) => OnPollutantToggled(3, isOn));
+        // Set all toggles to OFF initially
+        pollutant1Toggle.isOn = false;
+        pollutant2Toggle.isOn = false;
+        pollutant3Toggle.isOn = false;
     }
 
     void Update()
@@ -92,7 +100,8 @@ public class CanvasHelper : MonoBehaviour
         {
             canvasInit.SetActive(false);
             canvasEditor.SetActive(true);
-            pollutant1Toggle.isOn = true; // Default to pollutant 1
+            // Always start with pollutant 1 selected
+            SelectPollutant(1);
         }
     }
 
@@ -101,52 +110,43 @@ public class CanvasHelper : MonoBehaviour
         yield return null; // wait one frame
         canvasInit.SetActive(false);
         canvasEditor.SetActive(true);
-        pollutant1Toggle.isOn = true; // Default to pollutant 1
+        // Always start with pollutant 1 selected
+        SelectPollutant(1);
     }
 
-    /// <summary>
-    /// Handle pollutant toggle - ensures only one is active at a time (radio button behavior)
-    /// </summary>
-    private void OnPollutantToggled(int pollutantIndex, bool isOn)
+    // Public methods to be called from Toggle onClick events in Inspector
+    public void OnPollutant1Clicked()
     {
-        if (isOn)
+        SelectPollutant(1);
+    }
+
+    public void OnPollutant2Clicked()
+    {
+        SelectPollutant(2);
+    }
+
+    public void OnPollutant3Clicked()
+    {
+        SelectPollutant(3);
+    }
+
+    private void SelectPollutant(int pollutantIndex)
+    {
+        Debug.Log($"SelectPollutant called: {pollutantIndex}");
+
+        // Skip if already active to prevent unnecessary updates
+        if (activePollutant == pollutantIndex)
         {
-            // Already active? Skip to avoid recursion
-            if (activePollutant == pollutantIndex)
-                return;
-
-            // Temporarily remove listeners to avoid triggering during manual toggle changes
-            if (pollutant1Toggle != null) pollutant1Toggle.onValueChanged.RemoveAllListeners();
-            if (pollutant2Toggle != null) pollutant2Toggle.onValueChanged.RemoveAllListeners();
-            if (pollutant3Toggle != null) pollutant3Toggle.onValueChanged.RemoveAllListeners();
-
-            // Turn off other toggles (radio button behavior)
-            if (pollutantIndex != 1 && pollutant1Toggle != null) pollutant1Toggle.isOn = false;
-            if (pollutantIndex != 2 && pollutant2Toggle != null) pollutant2Toggle.isOn = false;
-            if (pollutantIndex != 3 && pollutant3Toggle != null) pollutant3Toggle.isOn = false;
-
-            // Re-add listeners
-            if (pollutant1Toggle != null) pollutant1Toggle.onValueChanged.AddListener((value) => OnPollutantToggled(1, value));
-            if (pollutant2Toggle != null) pollutant2Toggle.onValueChanged.AddListener((value) => OnPollutantToggled(2, value));
-            if (pollutant3Toggle != null) pollutant3Toggle.onValueChanged.AddListener((value) => OnPollutantToggled(3, value));
-
-            // Update active pollutant and VFX
-            activePollutant = pollutantIndex;
-            UpdateVFXColorScheme(pollutantIndex);
-
-            Debug.Log($"🎨 Switched to Pollutant {pollutantIndex} color scheme");
+            Debug.Log($"Pollutant {pollutantIndex} already active, skipping");
+            return;
         }
-        else
-        {
-            // Don't allow turning off the active pollutant (must always have one selected)
-            if (activePollutant == pollutantIndex)
-            {
-                // Force it back on
-                if (pollutantIndex == 1 && pollutant1Toggle != null) pollutant1Toggle.isOn = true;
-                else if (pollutantIndex == 2 && pollutant2Toggle != null) pollutant2Toggle.isOn = true;
-                else if (pollutantIndex == 3 && pollutant3Toggle != null) pollutant3Toggle.isOn = true;
-            }
-        }
+
+        // ToggleGroup handles the exclusive toggle behavior automatically!
+        // We only need to update the color scheme
+        activePollutant = pollutantIndex;
+        UpdateVFXColorScheme(pollutantIndex);
+
+        Debug.Log($"✅ Selected Pollutant {pollutantIndex}");
     }
 
     /// <summary>
@@ -183,16 +183,22 @@ public class CanvasHelper : MonoBehaviour
             return;
         }
 
-        // Update UI toggles if they exist
         if (pollutant1Toggle != null) pollutant1Toggle.isOn = (pollutantIndex == 1);
         if (pollutant2Toggle != null) pollutant2Toggle.isOn = (pollutantIndex == 2);
         if (pollutant3Toggle != null) pollutant3Toggle.isOn = (pollutantIndex == 3);
 
-        // Update state
+        // Skip color update if already active (but toggles are still updated above)
+        if (activePollutant == pollutantIndex)
+        {
+            Debug.Log($"Pollutant {pollutantIndex} already active, toggles synced");
+            return;
+        }
+
+        // Update state and color scheme
         activePollutant = pollutantIndex;
         UpdateVFXColorScheme(pollutantIndex);
 
-        Debug.Log($"🎨 Manually switched to Pollutant {pollutantIndex}");
+        Debug.Log($"🎨 Switched to Pollutant {pollutantIndex}");
     }
 
     public void BackToInit()
@@ -200,10 +206,12 @@ public class CanvasHelper : MonoBehaviour
         canvasEditor.SetActive(false);
         canvasInit.SetActive(true);
 
-        // Reset to default pollutant
+        // Reset all toggles to OFF when going back to init (dataset will be uninitialized)
         pollutant1Toggle.isOn = false;
         pollutant2Toggle.isOn = false;
         pollutant3Toggle.isOn = false;
+
+        // Reset to default (will be applied when re-initializing)
         activePollutant = 1;
     }
 }

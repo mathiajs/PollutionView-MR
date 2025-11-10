@@ -450,20 +450,28 @@ public class ParticleAnimationController : MonoBehaviour
     {
         currentColorScheme = colorSchemeIndex;
 
-        if (!isInitialized)
-        {
-            Debug.LogWarning("⚠️ Dataset not initialized yet, but color scheme will be applied when ready.");
-            return;
-        }
-
         if (vfx != null)
         {
+            // Always apply the color scheme change immediately
             vfx.SetInt("ColorScheme", colorSchemeIndex);
 
-            // Force VFX update by re-applying current timestep
-            vfx.SetInt("CurrentTimestep", currentTimestep);
+            // If initialized, force a visual update by restarting the VFX
+            if (isInitialized)
+            {
+                // Re-apply all necessary parameters
+                vfx.SetInt("CurrentTimestep", currentTimestep);
 
-            Debug.Log($"🎨 VFX color scheme set to: {colorSchemeIndex}");
+                // Force VFX to refresh particles with new color scheme
+                vfx.Stop();
+                vfx.Reinit();
+                vfx.Play();
+
+                Debug.Log($"🎨 VFX color scheme changed to Pollutant {colorSchemeIndex} - visual update applied");
+            }
+            else
+            {
+                Debug.Log($"🎨 VFX color scheme set to Pollutant {colorSchemeIndex} (will apply when dataset initializes)");
+            }
         }
         else
         {
