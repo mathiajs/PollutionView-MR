@@ -210,8 +210,6 @@ public class CanvasHelper : MonoBehaviour
         pollutant1Toggle.isOn = false;
         pollutant2Toggle.isOn = false;
         pollutant3Toggle.isOn = false;
-
-        // Reset to default (will be applied when re-initializing)
-        activePollutant = 1;
+        activePollutant = 0;
     }
 }
