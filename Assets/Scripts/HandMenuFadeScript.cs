@@ -18,6 +18,7 @@ public class HandMenuToggle : MonoBehaviour
         if (xrCamera == null) xrCamera = Camera.main;
 
         canvasGroup = GetComponent<CanvasGroup>();
+        Debug.Log("HandMenuToggle started");
     }
 
     void Update()

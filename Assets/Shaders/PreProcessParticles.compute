@@ -1,0 +1,27 @@
+#pragma kernel CSMain
+
+// Input: all timesteps {t, z, y, x, q}
+struct ParticleData {
+    int t;
+    int z;
+    int y;
+    int x;
+    float q;
+};
+
+StructuredBuffer<ParticleData> InBuffer;
+RWStructuredBuffer<ParticleData> OutBuffer;
+
+uint PointCount;
+int CurrentTimeStep;
+
+[numthreads(256, 1, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    uint i = id.x;
+    if (i >= PointCount)
+        return;
+
+    // Just copy data through - VFX Graph will do the filtering
+    OutBuffer[i] = InBuffer[i];
+}

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(if not exist \"C:\\Studier\\Semester_7\\Kundestyrt\\XR\\Assets\\Scripts\\Editor\" mkdir \"C:\\Studier\\Semester_7\\Kundestyrt\\XR\\Assets\\Scripts\\Editor\")",
+      "Bash(if not exist Editor mkdir Editor)",
+      "Bash(dir Editor)",
+      "Bash(powershell -Command \"Get-Item ''C:\\Studier\\Semester_7\\Kundestyrt\\XR\\Assets\\StreamingAssets\\preprocessed_particles.bytes'' | Select-Object Name, Length, LastWriteTime\")",
+      "Bash(powershell -Command:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

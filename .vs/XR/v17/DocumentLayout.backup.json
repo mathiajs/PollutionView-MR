@@ -3,6 +3,18 @@
   "WorkspaceRootPath": "C:\\Studier\\Semester_7\\Kundestyrt\\XR\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Studier\\Semester_7\\Kundestyrt\\XR\\Assets\\Scripts\\HDF5_InspectAndRead.cs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\HDF5_InspectAndRead.cs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Studier\\Semester_7\\Kundestyrt\\XR\\Assets\\Scripts\\HandMenuFadeScript.cs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\HandMenuFadeScript.cs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Studier\\Semester_7\\Kundestyrt\\XR\\Assets\\Scripts\\DataBufferBinder.cs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\DataBufferBinder.cs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Studier\\Semester_7\\Kundestyrt\\XR\\Assets\\Scripts\\TutorialManager.cs||{3B902123-F8A7-4915-9F01-361F908088D0}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\Scripts\\TutorialManager.cs||{3B902123-F8A7-4915-9F01-361F908088D0}"
     }
@@ -14,17 +26,56 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "HandMenuFadeScript.cs",
+              "DocumentMoniker": "C:\\Studier\\Semester_7\\Kundestyrt\\XR\\Assets\\Scripts\\HandMenuFadeScript.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\HandMenuFadeScript.cs",
+              "ToolTip": "C:\\Studier\\Semester_7\\Kundestyrt\\XR\\Assets\\Scripts\\HandMenuFadeScript.cs",
+              "RelativeToolTip": "Assets\\Scripts\\HandMenuFadeScript.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-21T12:47:29.472Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "DataBufferBinder.cs",
+              "DocumentMoniker": "C:\\Studier\\Semester_7\\Kundestyrt\\XR\\Assets\\Scripts\\DataBufferBinder.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\DataBufferBinder.cs",
+              "ToolTip": "C:\\Studier\\Semester_7\\Kundestyrt\\XR\\Assets\\Scripts\\DataBufferBinder.cs",
+              "RelativeToolTip": "Assets\\Scripts\\DataBufferBinder.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAOAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-21T08:47:42.489Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "HDF5_InspectAndRead.cs",
+              "DocumentMoniker": "C:\\Studier\\Semester_7\\Kundestyrt\\XR\\Assets\\Scripts\\HDF5_InspectAndRead.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\HDF5_InspectAndRead.cs",
+              "ToolTip": "C:\\Studier\\Semester_7\\Kundestyrt\\XR\\Assets\\Scripts\\HDF5_InspectAndRead.cs",
+              "RelativeToolTip": "Assets\\Scripts\\HDF5_InspectAndRead.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAA0AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-21T08:39:11.178Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "TutorialManager.cs",
               "DocumentMoniker": "C:\\Studier\\Semester_7\\Kundestyrt\\XR\\Assets\\Scripts\\TutorialManager.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\TutorialManager.cs",
               "ToolTip": "C:\\Studier\\Semester_7\\Kundestyrt\\XR\\Assets\\Scripts\\TutorialManager.cs",
               "RelativeToolTip": "Assets\\Scripts\\TutorialManager.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAjAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAjAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-07T06:46:41.087Z",
               "EditorCaption": ""
