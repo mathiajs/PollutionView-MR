@@ -21,8 +21,15 @@ public class DatasetLoadingIndicator : MonoBehaviour
     public float hideDelay = 0.5f;
     public bool showPercentage = true;
 
+    [Header("Additional Message Settings")]
+    [Tooltip("Additional message to show after 'Dataset ready!' and before fade out")]
+    public string additionalMessage = "Initializing visualization...";
+    [Tooltip("How long to show the 'Dataset ready!' message before showing additional message")]
+    public float readyMessageDuration = 1.0f;
+
     private bool wasLoading = false;
     private bool hasHidden = false;
+    private bool showingAdditionalMessage = false;
 
     void Start()
     {
@@ -86,14 +93,15 @@ public class DatasetLoadingIndicator : MonoBehaviour
         }
         else if (wasLoading && !hasHidden && isLoaded)
         {
-            // Just finished loading
-            Debug.Log("✅ Dataset finished loading! Hiding panel...");
+            // Just finished loading - show "Dataset ready!" first
+            Debug.Log("✅ Dataset finished loading! Showing ready message...");
             SetText("Dataset ready!");
 
             if (hideWhenLoaded && loadingPanel != null)
             {
-                Debug.Log($"⏳ Hiding panel in {hideDelay}s...");
-                Invoke(nameof(HideLoadingPanel), hideDelay);
+                // Show additional message after readyMessageDuration
+                Debug.Log($"⏳ Will show additional message in {readyMessageDuration}s...");
+                Invoke(nameof(ShowAdditionalMessage), readyMessageDuration);
             }
             else if (!hideWhenLoaded)
             {
@@ -101,7 +109,6 @@ public class DatasetLoadingIndicator : MonoBehaviour
             }
 
             wasLoading = false;
-            hasHidden = true;
         }
     }
 
@@ -117,12 +124,27 @@ public class DatasetLoadingIndicator : MonoBehaviour
         }
     }
 
+    void ShowAdditionalMessage()
+    {
+        if (!showingAdditionalMessage)
+        {
+            Debug.Log($"📝 Showing additional message: '{additionalMessage}'");
+            SetText(additionalMessage);
+            showingAdditionalMessage = true;
+
+            // Now schedule the fade out after hideDelay
+            Debug.Log($"⏳ Hiding panel in {hideDelay}s...");
+            Invoke(nameof(HideLoadingPanel), hideDelay);
+        }
+    }
+
     void HideLoadingPanel()
     {
         if (loadingPanel != null)
         {
             Debug.Log("👻 Hiding loading panel now!");
             loadingPanel.SetActive(false);
+            hasHidden = true;
         }
         else
         {
@@ -137,6 +159,7 @@ public class DatasetLoadingIndicator : MonoBehaviour
         {
             loadingPanel.SetActive(true);
             hasHidden = false;
+            showingAdditionalMessage = false;
         }
     }
 
