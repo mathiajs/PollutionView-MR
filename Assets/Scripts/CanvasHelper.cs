@@ -5,17 +5,14 @@ using UnityEngine.UI;
 
 public class CanvasHelper : MonoBehaviour
 {
-    public GameObject canvasInit;    // Canvas med Initialize-knappen
-    public GameObject canvasEditor;  // Canvas med editor-knapper
+    public GameObject canvasInit;
+    public GameObject canvasEditor;
+    public GameObject informationCanvas;
     private bool firstTime = true;
 
-    // Toggles for pollutants (only one active at a time)
     public Toggle pollutant1Toggle;
     public Toggle pollutant2Toggle;
     public Toggle pollutant3Toggle;
-
-    [Header("Optional: Use ToggleGroup for proper radio button behavior")]
-    [Tooltip("Assign the same ToggleGroup to all pollutant toggles in the Inspector")]
     public ToggleGroup pollutantToggleGroup;
 
     // Reference to particle controller to update VFX
@@ -38,6 +35,7 @@ public class CanvasHelper : MonoBehaviour
     {
         canvasInit.SetActive(true);
         canvasEditor.SetActive(false);
+        informationCanvas.SetActive(false);
 
         // Set up ToggleGroup for radio button behavior
         if (pollutantToggleGroup != null)
@@ -100,6 +98,7 @@ public class CanvasHelper : MonoBehaviour
         {
             canvasInit.SetActive(false);
             canvasEditor.SetActive(true);
+            informationCanvas.SetActive(true);
             // Always start with pollutant 1 selected
             SelectPollutant(1);
         }
@@ -110,11 +109,11 @@ public class CanvasHelper : MonoBehaviour
         yield return null; // wait one frame
         canvasInit.SetActive(false);
         canvasEditor.SetActive(true);
+        informationCanvas.SetActive(true);
         // Always start with pollutant 1 selected
         SelectPollutant(1);
     }
 
-    // Public methods to be called from Toggle onClick events in Inspector
     public void OnPollutant1Clicked()
     {
         SelectPollutant(1);
@@ -141,8 +140,6 @@ public class CanvasHelper : MonoBehaviour
             return;
         }
 
-        // ToggleGroup handles the exclusive toggle behavior automatically!
-        // We only need to update the color scheme
         activePollutant = pollutantIndex;
         UpdateVFXColorScheme(pollutantIndex);
 
@@ -204,6 +201,7 @@ public class CanvasHelper : MonoBehaviour
     public void BackToInit()
     {
         canvasEditor.SetActive(false);
+        informationCanvas.SetActive(false);
         canvasInit.SetActive(true);
 
         // Reset all toggles to OFF when going back to init (dataset will be uninitialized)

@@ -4,13 +4,20 @@ This is a proof of concept project for using XR (Extended Reality) to visualize 
 
 ## Installation and Setup
 
-1. Download and install Unity Hub from [Unity Hub](https://unity.com/download).
+## Installation
+
+1. Download and install Unity Hub from [https://unity.com/download](https://unity.com/download).
 2. Sign up for a Unity account if you don't have one.
 3. When asked to install the newest version of Unity, click "Skip Installation".
 4. Clone this repository to your local machine.
-5. Open Unity Hub and click on the "Add" button to add an existing project.
-6. You will be prompted to install the required Unity version (6000.2.4f1). Click "Install" and follow the instructions in Unity.
-7. When asked to install modules, select Android Build Support.
+5. Open the project folder in Unity Hub (Add > select folder).
+6. You will be prompted to install the required Unity version (6000.0.24f1). Click "Install" and follow the instructions.
+7. When selecting modules during installation, ensure the following are checked:
+   - Android Build Support
+   - Android SDK & NDK Tools
+   - OpenJDK
+8. Once installation completes, Unity Hub will automatically open the project.
+9. Unity will automatically download and install all required packages (this may take several minutes on first launch).
 
 ## Setup of Meta Quest 3 Headset
 

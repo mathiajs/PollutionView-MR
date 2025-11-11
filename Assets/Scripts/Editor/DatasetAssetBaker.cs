@@ -32,8 +32,7 @@ public class DatasetAssetBaker : EditorWindow
         GUILayout.Space(10);
 
         EditorGUILayout.HelpBox(
-            "This creates a Unity ScriptableObject asset with pre-processed data.\n" +
-            "At runtime, it loads INSTANTLY with zero processing!",
+            "This creates a Unity ScriptableObject asset with pre-processed data.\n",
             MessageType.Info
         );
 
