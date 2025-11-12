@@ -4,7 +4,6 @@ using System.Collections;
 
 /// <summary>
 /// Loads a pre-baked dataset asset at runtime.
-/// INSTANT loading - no processing needed!
 /// </summary>
 public class PrebakedDatasetLoader : MonoBehaviour
 {
@@ -43,30 +42,29 @@ public class PrebakedDatasetLoader : MonoBehaviour
     {
         if (datasetAsset == null)
         {
-            Debug.LogError("❌ No dataset asset assigned!");
+            Debug.LogError("No dataset asset assigned");
             yield break;
         }
 
         float startTime = Time.realtimeSinceStartup;
 
-        Debug.Log($"⚡ Loading prebaked dataset asset: {datasetAsset.name}");
-        Debug.Log($"📊 Particles: {datasetAsset.particleCount:N0}, Size: {datasetAsset.GetMemorySizeMB():F2} MB");
+        Debug.Log($"Loading prebaked dataset asset: {datasetAsset.name}");
+        Debug.Log($"Particles: {datasetAsset.particleCount:N0}, Size: {datasetAsset.GetMemorySizeMB():F2} MB");
 
-        // This is INSTANT - just memory copy!
         buffer = datasetAsset.CreateGraphicsBuffer();
 
         yield return null;
 
         if (buffer == null)
         {
-            Debug.LogError("❌ Failed to create GraphicsBuffer from asset!");
+            Debug.LogError("Failed to create GraphicsBuffer from asset!");
             yield break;
         }
 
         isLoaded = true;
 
         float loadTime = Time.realtimeSinceStartup - startTime;
-        Debug.Log($"✅ Prebaked dataset loaded in {loadTime:F3}s - INSTANT!");
+        Debug.Log($"Prebaked dataset loaded in {loadTime:F3}s");
     }
 
     [ContextMenu("Load Now")]

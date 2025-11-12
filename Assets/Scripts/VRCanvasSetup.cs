@@ -52,7 +52,7 @@ public class VRCanvasSetup : MonoBehaviour
             transform.localScale = new Vector3(0.001f, 0.001f, 0.001f);
         }
 
-        Debug.Log($"✅ Canvas '{gameObject.name}' configured for VR (World Space, scale: {transform.localScale.x})");
+        Debug.Log($"Canvas '{gameObject.name}' configured for VR (World Space, scale: {transform.localScale.x})");
     }
 
     public void PositionInFrontOfCamera()
@@ -60,7 +60,7 @@ public class VRCanvasSetup : MonoBehaviour
         Camera mainCam = Camera.main;
         if (mainCam == null)
         {
-            Debug.LogWarning("No main camera found! Can't position canvas.");
+            Debug.LogWarning("No main camera found");
             return;
         }
 
@@ -72,10 +72,9 @@ public class VRCanvasSetup : MonoBehaviour
         transform.position = cameraPosition + cameraForward * distanceFromCamera + cameraUp * heightOffset;
         transform.rotation = Quaternion.LookRotation(transform.position - cameraPosition);
 
-        Debug.Log($"📍 Canvas positioned at {transform.position}");
+        Debug.Log($"Canvas positioned at {transform.position}");
     }
 
-    // Call this from Inspector or code to reposition canvas
     [ContextMenu("Position In Front of Camera Now")]
     public void PositionNow()
     {

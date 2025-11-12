@@ -5,15 +5,15 @@ using UnityEngine.VFX;
 public class ParticleAnimationController : MonoBehaviour
 {
     [Header("Data Source")]
-    public PrebakedDatasetLoader prebakedLoader; // FASTEST: Unity asset (instant load!)
+    public PrebakedDatasetLoader prebakedLoader;
 
     public ComputeShader preprocessShader;
-    public bool useTestData = true; // toggle in Inspector
-    public bool initializeOnStart = false; // if false, wait for manual initialization (RECOMMENDED: keep false to avoid startup freeze)
+    public bool useTestData = true;
+    public bool initializeOnStart = false;
 
     [Header("Debug Settings")]
     [Tooltip("Enable expensive GPU readback logging (causes LAG! Disable for Quest builds)")]
-    public bool enableDebugLogging = false; // Set to FALSE for production/Quest!
+    public bool enableDebugLogging = false;
 
     [Header("Timestep Control")]
     public int currentTimestep = 0;
@@ -30,9 +30,8 @@ public class ParticleAnimationController : MonoBehaviour
     private bool isInitialized = false;
     private int lastDispatchedTimestep = -1;
     private float timeSinceLastStep = 0f;
-    private int currentColorScheme = 1; // Track current color scheme
+    private int currentColorScheme = 1;
 
-    // Public accessor
     public bool IsInitialized => isInitialized;
 
     void Start()
@@ -41,7 +40,6 @@ public class ParticleAnimationController : MonoBehaviour
         if (vfx == null)
             vfx = GetComponent<VisualEffect>();
 
-        // Hide VFX initially if not auto-initializing
         if (!initializeOnStart)
         {
             vfx.Stop();
@@ -58,14 +56,12 @@ public class ParticleAnimationController : MonoBehaviour
         vfx = GetComponent<VisualEffect>();
         vfx.Reinit();
 
-        // 🧱 If using test data, skip waiting for reader
         if (useTestData)
         {
             CreateTestBuffer();
 
-            yield return null; // wait one frame for VFX Graph
+            yield return null;
 
-            // Set up compute shader to process test data (same as real data path)
             if (preprocessShader == null)
             {
                 Debug.LogError("Missing compute shader reference! Assign PreProcessParticles.compute in Inspector.");
@@ -73,8 +69,7 @@ public class ParticleAnimationController : MonoBehaviour
                 yield break;
             }
 
-            // Output buffer needs to match ParticleData struct size
-            int structSize = sizeof(int) * 4 + sizeof(float); // t,z,y,x,q
+            int structSize = sizeof(int) * 4 + sizeof(float);
             visualBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, pointCount, structSize);
 
             kernel = preprocessShader.FindKernel("CSMain");
@@ -82,35 +77,32 @@ public class ParticleAnimationController : MonoBehaviour
             preprocessShader.SetBuffer(kernel, "OutBuffer", visualBuffer);
             preprocessShader.SetInt("PointCount", pointCount);
 
-            // Dispatch initial timestep
             DispatchForStep(currentTimestep);
             lastDispatchedTimestep = currentTimestep;
 
-            Debug.Log($"✅ Processed and bound test cube buffer ({pointCount} points) to VFX Graph.");
+            Debug.Log($"Processed and bound test cube buffer ({pointCount} points) to VFX Graph.");
 
             isInitialized = true;
             yield break;
         }
 
-        // --- Normal data path ---
         else
         {
             if (prebakedLoader == null)
             {
-                Debug.LogError("❌ No data source assigned! Assign PrebakedDatasetLoader in the Inspector.");
+                Debug.LogError("No data source assigned! Assign PrebakedDatasetLoader in the Inspector.");
                 enabled = false;
                 yield break;
             }
 
-            Debug.Log("🚀 Using PrebakedDatasetLoader (INSTANT Unity asset)...");
+            Debug.Log("Using PrebakedDatasetLoader");
 
-            // Wait for prebaked loader to finish (should be instant)
             float startTime = Time.realtimeSinceStartup;
             while (prebakedLoader.buffer == null && !prebakedLoader.IsLoaded)
             {
                 if (Time.realtimeSinceStartup - startTime > 5f)
                 {
-                    Debug.LogError("❌ PrebakedDatasetLoader timed out after 5 seconds!");
+                    Debug.LogError("PrebakedDatasetLoader timed out after 5 seconds!");
                     enabled = false;
                     yield break;
                 }
@@ -118,9 +110,8 @@ public class ParticleAnimationController : MonoBehaviour
             }
 
             GraphicsBuffer sourceBuffer = prebakedLoader.buffer;
-            Debug.Log($"✅ Prebaked loader ready! Load time: {Time.realtimeSinceStartup - startTime:F3}s");
+            Debug.Log($"Prebaked loader ready! Load time: {Time.realtimeSinceStartup - startTime:F3}s");
 
-            // Pass min/max values to VFX Graph for normalization/visualization
             vfx.SetInt("MinX", prebakedLoader.MinX);
             vfx.SetInt("MaxX", prebakedLoader.MaxX);
             vfx.SetInt("MinY", prebakedLoader.MinY);
@@ -130,15 +121,14 @@ public class ParticleAnimationController : MonoBehaviour
             vfx.SetFloat("MinQ", prebakedLoader.MinQ);
             vfx.SetFloat("MaxQ", prebakedLoader.MaxQ);
 
-            Debug.Log($"📊 Value ranges passed to VFX:\n" +
+            Debug.Log($"Value ranges passed to VFX:\n" +
                      $"X: {prebakedLoader.MinX} to {prebakedLoader.MaxX}\n" +
                      $"Y: {prebakedLoader.MinY} to {prebakedLoader.MaxY}\n" +
                      $"Z: {prebakedLoader.MinZ} to {prebakedLoader.MaxZ}\n" +
                      $"Q: {prebakedLoader.MinQ:F6} to {prebakedLoader.MaxQ:F6}");
 
-            // Set initial color scheme (default to pollutant 1)
             vfx.SetInt("ColorScheme", 1);
-            Debug.Log("🎨 Initial color scheme set to Pollutant 1");
+            Debug.Log("Initial color scheme set to Pollutant 1");
 
             if (preprocessShader == null)
             {
@@ -147,7 +137,7 @@ public class ParticleAnimationController : MonoBehaviour
                 yield break;
             }
 
-            yield return null; // wait one frame for VFX Graph
+            yield return null;
 
             rawBuffer = sourceBuffer;
             pointCount = rawBuffer.count;
@@ -158,7 +148,7 @@ public class ParticleAnimationController : MonoBehaviour
                 ParticleData[] sampleData = new ParticleData[Mathf.Min(100, pointCount)];
                 rawBuffer.GetData(sampleData, 0, 0, sampleData.Length);
 
-                int[] timestepCounts = new int[20]; // Count particles per timestep
+                int[] timestepCounts = new int[20];
                 for (int i = 0; i < sampleData.Length; i++)
                 {
                     if (sampleData[i].t >= 0 && sampleData[i].t < timestepCounts.Length)
@@ -173,8 +163,7 @@ public class ParticleAnimationController : MonoBehaviour
                 }
             }
 
-            // Output buffer needs to match ParticleData struct size
-            int structSize = sizeof(int) * 4 + sizeof(float); // t,z,y,x,q
+            int structSize = sizeof(int) * 4 + sizeof(float);
             visualBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, pointCount, structSize);
 
             kernel = preprocessShader.FindKernel("CSMain");
@@ -182,7 +171,6 @@ public class ParticleAnimationController : MonoBehaviour
             preprocessShader.SetBuffer(kernel, "OutBuffer", visualBuffer);
             preprocessShader.SetInt("PointCount", pointCount);
 
-            // Dispatch initial timestep
             DispatchForStep(currentTimestep);
             lastDispatchedTimestep = currentTimestep;
             isInitialized = true;
@@ -194,7 +182,6 @@ public class ParticleAnimationController : MonoBehaviour
         if (!isInitialized)
             return;
 
-        // Auto-play: cycle through timesteps automatically
         if (autoPlay)
         {
             timeSinceLastStep += Time.deltaTime;
@@ -202,12 +189,11 @@ public class ParticleAnimationController : MonoBehaviour
             if (timeSinceLastStep >= timestepInterval)
             {
                 timeSinceLastStep = 0f;
-                currentTimestep = (currentTimestep + 1) % (maxTimestep + 1); // Loop back to 0 after maxTimestep
+                currentTimestep = (currentTimestep + 1) % (maxTimestep + 1);
                 Debug.Log($"🎬 Auto-play: advancing to timestep {currentTimestep}");
             }
         }
 
-        // Re-dispatch if timestep changed (manual or auto)
         if (currentTimestep != lastDispatchedTimestep)
         {
             Debug.Log($"Timestep changed from {lastDispatchedTimestep} to {currentTimestep}");
@@ -231,7 +217,6 @@ public class ParticleAnimationController : MonoBehaviour
             Debug.LogError("Compute shader is null! Cannot process particle data.");
         }
 
-        // Debug: Find and log particles matching current timestep (VERY EXPENSIVE - GPU readback!)
         if (enableDebugLogging)
         {
             ParticleData[] allData = new ParticleData[pointCount];
@@ -254,18 +239,11 @@ public class ParticleAnimationController : MonoBehaviour
                 }
             }
 
-            Debug.Log($"📊 Timestep {step}: Found {matchCount} particles out of {pointCount} total ({(matchCount * 100f / pointCount):F2}%)");
-
-            // Check if we need more capacity
-            if (matchCount > 40000)
-            {
-                Debug.LogWarning($"⚠️ WARNING: {matchCount} particles for timestep {step}, but VFX capacity is only 40,000!");
-                Debug.LogWarning($"   Open Dataset_Visual.vfx and increase capacity to at least {Mathf.CeilToInt(matchCount * 1.2f)}");
-            }
+            Debug.Log($"Timestep {step}: Found {matchCount} particles out of {pointCount} total ({(matchCount * 100f / pointCount):F2}%)");
         }
         else
         {
-            Debug.Log($"🔄 Switched to timestep {step}");
+            Debug.Log($"Switched to timestep {step}");
         }
 
         vfx.SetUInt("PointCount", (uint)pointCount);
@@ -277,18 +255,15 @@ public class ParticleAnimationController : MonoBehaviour
             if (!vfx.HasGraphicsBuffer("DataBuffer"))
                 Debug.LogError("VFX Graph is missing DataBuffer!");
             else
-                Debug.Log($"✅ Bound DataBuffer with {pointCount} points to VFX.");
+                Debug.Log($"Bound DataBuffer with {pointCount} points to VFX.");
 
-            // Verify VFX parameters
             Debug.Log($"VFX Parameters: PointCount={vfx.GetUInt("PointCount")}, CurrentTimestep={vfx.GetInt("CurrentTimestep")}");
         }
 
-        // Force VFX to respawn particles by stopping and restarting
         vfx.Stop();
         vfx.Reinit();
         vfx.Play();
 
-        // Re-apply color scheme after reinit (in case it was reset)
         vfx.SetInt("ColorScheme", currentColorScheme);
     }
 
@@ -311,7 +286,7 @@ public class ParticleAnimationController : MonoBehaviour
             return;
         }
 
-        Debug.Log("🚀 Initializing dataset...");
+        Debug.Log("Initializing dataset...");
         StartCoroutine(WaitForBufferAndInit());
     }
 
@@ -328,20 +303,14 @@ public class ParticleAnimationController : MonoBehaviour
 
         Debug.Log("🛑 Uninitializing dataset...");
 
-        // Stop auto-play
         autoPlay = false;
 
-        // Stop and clear VFX
         vfx.Stop();
         vfx.Reinit();
 
-        // DON'T release rawBuffer - we need to keep the source data!
-        // Only release the visual buffer
         visualBuffer?.Release();
         visualBuffer = null;
 
-        // Note: rawBuffer is kept because it's managed by PrebakedDatasetLoader
-        // We just clear our reference to the visual buffer
 
         // Reset state
         isInitialized = false;
@@ -349,7 +318,7 @@ public class ParticleAnimationController : MonoBehaviour
         currentTimestep = 0;
         timeSinceLastStep = 0f;
 
-        Debug.Log("💤 Dataset uninitialized and hidden. Ready to re-initialize.");
+        Debug.Log("Dataset uninitialized and hidden.");
     }
 
     /// <summary>
@@ -361,12 +330,12 @@ public class ParticleAnimationController : MonoBehaviour
 
         if (autoPlay)
         {
-            Debug.Log("▶️ Auto-play STARTED");
-            timeSinceLastStep = 0f; // Reset timer
+            Debug.Log("Auto-play STARTED");
+            timeSinceLastStep = 0f;
         }
         else
         {
-            Debug.Log("⏸️ Auto-play PAUSED");
+            Debug.Log("Auto-play PAUSED");
         }
     }
 
@@ -377,13 +346,13 @@ public class ParticleAnimationController : MonoBehaviour
     {
         if (!isInitialized)
         {
-            Debug.LogWarning("⚠️ Dataset not initialized! Call InitializeDataset() first.");
+            Debug.LogWarning("Dataset not initialized! Call InitializeDataset() first.");
             return;
         }
 
         autoPlay = true;
         timeSinceLastStep = 0f;
-        Debug.Log("▶️ Auto-play STARTED");
+        Debug.Log("Auto-play STARTED");
     }
 
     /// <summary>
@@ -392,7 +361,7 @@ public class ParticleAnimationController : MonoBehaviour
     public void Pause()
     {
         autoPlay = false;
-        Debug.Log("⏸️ Auto-play PAUSED");
+        Debug.Log("Auto-play PAUSED");
     }
 
     /// <summary>
@@ -402,12 +371,12 @@ public class ParticleAnimationController : MonoBehaviour
     {
         if (!isInitialized)
         {
-            Debug.LogWarning("⚠️ Dataset not initialized!");
+            Debug.LogWarning("Dataset not initialized!");
             return;
         }
 
         currentTimestep = (currentTimestep + 1) % (maxTimestep + 1);
-        Debug.Log($"⏭️ Advanced to timestep {currentTimestep}");
+        Debug.Log($"Advanced to timestep {currentTimestep}");
     }
 
     /// <summary>
@@ -417,12 +386,12 @@ public class ParticleAnimationController : MonoBehaviour
     {
         if (!isInitialized)
         {
-            Debug.LogWarning("⚠️ Dataset not initialized!");
+            Debug.LogWarning("Dataset not initialized!");
             return;
         }
 
         currentTimestep = (currentTimestep - 1 + maxTimestep + 1) % (maxTimestep + 1);
-        Debug.Log($"⏮️ Went back to timestep {currentTimestep}");
+        Debug.Log($"Went back to timestep {currentTimestep}");
     }
 
     /// <summary>
@@ -432,54 +401,50 @@ public class ParticleAnimationController : MonoBehaviour
     {
         if (!isInitialized)
         {
-            Debug.LogWarning("⚠️ Dataset not initialized!");
+            Debug.LogWarning("Dataset not initialized!");
             return;
         }
 
         currentTimestep = 0;
         autoPlay = false;
-        Debug.Log("🔄 Reset to timestep 0");
+        Debug.Log("Reset to timestep 0");
     }
 
     /// <summary>
     /// Set the color scheme for particle visualization.
     /// Called by CanvasHelper when user toggles pollutant selection.
     /// </summary>
-    /// <param name="colorSchemeIndex">1 = Pollutant 1 (Blue-Red), 2 = Pollutant 2, 3 = Pollutant 3</param>
+    /// <param name="colorSchemeIndex">1 = Pollutant 1 (Red), 2 = Pollutant 2 (Yellow), 3 = Pollutant 3 (Purple)</param>
     public void SetColorScheme(int colorSchemeIndex)
     {
         currentColorScheme = colorSchemeIndex;
 
         if (vfx != null)
         {
-            // Always apply the color scheme change immediately
             vfx.SetInt("ColorScheme", colorSchemeIndex);
 
-            // If initialized, force a visual update by restarting the VFX
             if (isInitialized)
             {
-                // Re-apply all necessary parameters
                 vfx.SetInt("CurrentTimestep", currentTimestep);
 
-                // Force VFX to refresh particles with new color scheme
                 vfx.Stop();
                 vfx.Reinit();
                 vfx.Play();
 
-                Debug.Log($"🎨 VFX color scheme changed to Pollutant {colorSchemeIndex} - visual update applied");
+                Debug.Log($"VFX color scheme changed to Pollutant {colorSchemeIndex} - visual update applied");
             }
             else
             {
-                Debug.Log($"🎨 VFX color scheme set to Pollutant {colorSchemeIndex} (will apply when dataset initializes)");
+                Debug.Log($"VFX color scheme set to Pollutant {colorSchemeIndex} (will apply when dataset initializes)");
             }
         }
         else
         {
-            Debug.LogError("❌ VFX reference is null!");
+            Debug.LogError("VFX reference is null!");
         }
     }
 
-    // 🧱 Generate test cube with single timestep
+    //Mainly a Debug method, use this to check if the reader or the visualization is the problem
     void CreateTestBuffer()
     {
         int width = 50, height = 15, depth = 50;
@@ -496,11 +461,11 @@ public class ParticleAnimationController : MonoBehaviour
                 {
                     points[index] = new ParticleData
                     {
-                        t = 0,          // All particles at timestep 0
+                        t = 0,
                         z = z,
                         y = y,
                         x = x,
-                        q = (float)index / pointCount      // Gradient from 0 to 1
+                        q = (float)index / pointCount  
                     };
                     index++;
                 }
@@ -512,7 +477,7 @@ public class ParticleAnimationController : MonoBehaviour
         rawBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, pointCount, structSize);
         rawBuffer.SetData(points);
 
-        Debug.Log($"🧱 Created test cube buffer with {pointCount} points in ParticleData format.");
+        Debug.Log($"Created test cube buffer with {pointCount} points in ParticleData format.");
     }
 
 }
