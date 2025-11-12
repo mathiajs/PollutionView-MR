@@ -27,11 +27,10 @@ public class PrebakedDatasetAsset : ScriptableObject
 
     [Header("Particle Data")]
     [HideInInspector]
-    public byte[] serializedData; // Stores particle data as byte array
+    public byte[] serializedData;
 
     /// <summary>
     /// Deserialize the byte array back to ParticleData array.
-    /// This is FAST because it's just reading binary data.
     /// </summary>
     public ParticleData[] GetParticles()
     {
@@ -63,7 +62,6 @@ public class PrebakedDatasetAsset : ScriptableObject
 
     /// <summary>
     /// Create a GraphicsBuffer from this asset's data.
-    /// Called at runtime - very fast!
     /// </summary>
     public GraphicsBuffer CreateGraphicsBuffer()
     {
@@ -79,7 +77,7 @@ public class PrebakedDatasetAsset : ScriptableObject
         GraphicsBuffer buffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, particles.Length, structSize);
         buffer.SetData(particles);
 
-        Debug.Log($"✅ Created GraphicsBuffer from prebaked asset: {particles.Length:N0} particles");
+        Debug.Log($"Created GraphicsBuffer from prebaked asset: {particles.Length:N0} particles");
 
         return buffer;
     }

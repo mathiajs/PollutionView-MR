@@ -41,16 +41,16 @@ public class DatasetLoadingIndicator : MonoBehaviour
         if (loadingPanel != null && !isLoaded)
         {
             loadingPanel.SetActive(true);
-            Debug.Log("✅ Loading panel shown on start");
+            Debug.Log("Loading panel shown on start");
         }
         else
         {
             if (loadingPanel == null)
-                Debug.LogWarning("⚠️ LoadingPanel reference is missing!");
+                Debug.LogWarning("LoadingPanel reference is missing!");
             if (prebakedLoader == null)
-                Debug.LogWarning("⚠️ No loader reference assigned!");
+                Debug.LogWarning("No loader reference assigned!");
             if (isLoaded)
-                Debug.Log("ℹ️ Dataset already loaded, hiding panel");
+                Debug.Log("Dataset already loaded, hiding panel");
         }
     }
 
@@ -63,7 +63,6 @@ public class DatasetLoadingIndicator : MonoBehaviour
 
     bool GetIsLoading()
     {
-        // Prebaked loader is instant, so check if it's not loaded yet
         if (prebakedLoader != null)
             return !prebakedLoader.IsLoaded;
         return false;
@@ -78,7 +77,6 @@ public class DatasetLoadingIndicator : MonoBehaviour
 
         if (isCurrentlyLoading)
         {
-            // Still loading
             string message = "Loading dataset...\nPlease wait";
 
             SetText(message);
@@ -93,19 +91,18 @@ public class DatasetLoadingIndicator : MonoBehaviour
         }
         else if (wasLoading && !hasHidden && isLoaded)
         {
-            // Just finished loading - show "Dataset ready!" first
-            Debug.Log("✅ Dataset finished loading! Showing ready message...");
+            Debug.Log("Dataset finished loading! Showing ready message...");
             SetText("Dataset ready!");
 
             if (hideWhenLoaded && loadingPanel != null)
             {
                 // Show additional message after readyMessageDuration
-                Debug.Log($"⏳ Will show additional message in {readyMessageDuration}s...");
+                Debug.Log($"Will show additional message in {readyMessageDuration}s...");
                 Invoke(nameof(ShowAdditionalMessage), readyMessageDuration);
             }
             else if (!hideWhenLoaded)
             {
-                Debug.Log("⚠️ hideWhenLoaded is false - panel will stay visible");
+                Debug.Log("hideWhenLoaded is false - panel will stay visible");
             }
 
             wasLoading = false;
@@ -128,12 +125,11 @@ public class DatasetLoadingIndicator : MonoBehaviour
     {
         if (!showingAdditionalMessage)
         {
-            Debug.Log($"📝 Showing additional message: '{additionalMessage}'");
+            Debug.Log($"Showing additional message: '{additionalMessage}'");
             SetText(additionalMessage);
             showingAdditionalMessage = true;
 
-            // Now schedule the fade out after hideDelay
-            Debug.Log($"⏳ Hiding panel in {hideDelay}s...");
+            Debug.Log($"Hiding panel in {hideDelay}s...");
             Invoke(nameof(HideLoadingPanel), hideDelay);
         }
     }
@@ -142,13 +138,12 @@ public class DatasetLoadingIndicator : MonoBehaviour
     {
         if (loadingPanel != null)
         {
-            Debug.Log("👻 Hiding loading panel now!");
             loadingPanel.SetActive(false);
             hasHidden = true;
         }
         else
         {
-            Debug.LogWarning("⚠️ Cannot hide panel - loadingPanel reference is null!");
+            Debug.LogWarning("Cannot hide panel - loadingPanel reference is null!");
         }
     }
 
