@@ -1,4 +1,4 @@
-# DynamicEmission-MR
+# LiveEmission-MR
 
 This is a proof of concept project for using MR (Mixed Reality) to visualize dynamic emissions data in a 3D environment.
 
