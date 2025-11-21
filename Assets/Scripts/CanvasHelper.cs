@@ -7,7 +7,7 @@ public class CanvasHelper : MonoBehaviour
 {
     public GameObject canvasInit;
     public GameObject canvasEditor;
-    public GameObject informationCanvas;
+    //public GameObject informationCanvas;
     private bool firstTime = true;
 
     public Toggle pollutant1Toggle;
@@ -35,7 +35,7 @@ public class CanvasHelper : MonoBehaviour
     {
         canvasInit.SetActive(true);
         canvasEditor.SetActive(false);
-        informationCanvas.SetActive(false);
+        //informationCanvas.SetActive(false);
 
         // Set up ToggleGroup for radio button behavior
         if (pollutantToggleGroup != null)
@@ -98,7 +98,7 @@ public class CanvasHelper : MonoBehaviour
         {
             canvasInit.SetActive(false);
             canvasEditor.SetActive(true);
-            informationCanvas.SetActive(true);
+            //informationCanvas.SetActive(true);
             // Always start with pollutant 1 selected
             SelectPollutant(1);
         }
@@ -109,7 +109,7 @@ public class CanvasHelper : MonoBehaviour
         yield return null; // wait one frame
         canvasInit.SetActive(false);
         canvasEditor.SetActive(true);
-        informationCanvas.SetActive(true);
+        //informationCanvas.SetActive(true);
         // Always start with pollutant 1 selected
         SelectPollutant(1);
     }
@@ -201,7 +201,7 @@ public class CanvasHelper : MonoBehaviour
     public void BackToInit()
     {
         canvasEditor.SetActive(false);
-        informationCanvas.SetActive(false);
+        //informationCanvas.SetActive(false);
         canvasInit.SetActive(true);
 
         // Reset all toggles to OFF when going back to init (dataset will be uninitialized)
