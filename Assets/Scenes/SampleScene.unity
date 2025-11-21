@@ -3381,7 +3381,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CubeManager
   canvasInit: {fileID: 1417574637}
   canvasEditor: {fileID: 152888371}
-  informationCanvas: {fileID: 0}
   pollutant1Toggle: {fileID: 0}
   pollutant2Toggle: {fileID: 0}
   pollutant3Toggle: {fileID: 0}
@@ -8881,7 +8880,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CanvasHelper
   canvasInit: {fileID: 1417574637}
   canvasEditor: {fileID: 845719445}
-  informationCanvas: {fileID: 0}
   pollutant1Toggle: {fileID: 0}
   pollutant2Toggle: {fileID: 0}
   pollutant3Toggle: {fileID: 0}
@@ -9989,7 +9987,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CanvasHelper
   canvasInit: {fileID: 1417574637}
   canvasEditor: {fileID: 152888371}
-  informationCanvas: {fileID: 542721372}
   pollutant1Toggle: {fileID: 369302829}
   pollutant2Toggle: {fileID: 1852006357}
   pollutant3Toggle: {fileID: 1449418802}
@@ -11144,7 +11141,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 7.6, y: 50.7}
-  m_SizeDelta: {x: 594.4, y: 276.2}
+  m_SizeDelta: {x: 490, y: 276}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!82 &1082286993
 AudioSource:
@@ -11286,7 +11283,7 @@ VideoPlayer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1082286991}
   m_Enabled: 1
-  m_VideoClip: {fileID: 32900000, guid: 1d76c73c2a616a840a340b260ce543d4, type: 3}
+  m_VideoClip: {fileID: 32900000, guid: 52c5b3824ee992344b670ba5ae7ebfed, type: 3}
   m_TargetCameraAlpha: 1
   m_TargetCamera3DLayout: 0
   m_TargetCamera: {fileID: 0}
@@ -13926,7 +13923,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CubeManager
   canvasInit: {fileID: 1417574637}
   canvasEditor: {fileID: 152888371}
-  informationCanvas: {fileID: 0}
   pollutant1Toggle: {fileID: 0}
   pollutant2Toggle: {fileID: 0}
   pollutant3Toggle: {fileID: 0}
